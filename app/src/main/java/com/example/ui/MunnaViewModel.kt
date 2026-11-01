@@ -274,6 +274,19 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
 
+                is ParsedCommand.OpenCustomAppByName -> {
+                    val execResult = actionHandler.launchCustomAppByName(parsed.requestedAppName, currentSettings.language)
+                    completeLocalCommand(
+                        rawText = trimmed,
+                        normalizedText = parsed.normalizedText,
+                        category = parsed.categoryLabel,
+                        spokenResponse = execResult.spokenResponse,
+                        detailText = execResult.detailMessage,
+                        statusBadge = execResult.statusSummary,
+                        isSuccess = execResult.isSuccess
+                    )
+                }
+
                 is ParsedCommand.TellTime -> {
                     val execResult = actionHandler.getCurrentTimeResponse(currentSettings.language)
                     completeLocalCommand(

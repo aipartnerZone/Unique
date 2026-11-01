@@ -5,28 +5,36 @@ enum class TargetApp(
     val displayName: String,
     val hindiName: String,
     val primaryPackages: List<String>,
-    val sampleCommand: String
+    val aliases: List<String>,
+    val sampleCommand: String,
+    val isHomePrimaryShortcut: Boolean = false
 ) {
     YOUTUBE(
         id = "youtube",
         displayName = "YouTube",
         hindiName = "YouTube (यूट्यूब)",
         primaryPackages = listOf("com.google.android.youtube"),
-        sampleCommand = "Munna, YouTube kholo"
+        aliases = listOf("youtube", "you tube", "utube", "yt", "yutube", "यूट्यूब", "यू ट्यूब", "युटुब"),
+        sampleCommand = "Munna, YouTube kholo",
+        isHomePrimaryShortcut = true
     ),
     WHATSAPP(
         id = "whatsapp",
         displayName = "WhatsApp",
         hindiName = "WhatsApp (व्हाट्सएप)",
         primaryPackages = listOf("com.whatsapp", "com.whatsapp.w4b"),
-        sampleCommand = "WhatsApp kholo"
+        aliases = listOf("whatsapp", "whats app", "watsapp", "whatsap", "wa", "व्हाट्सएप", "व्हाट्सऐप", "वाट्सएप", "वॉट्सऐप", "व्हाट्स अप"),
+        sampleCommand = "WhatsApp kholo",
+        isHomePrimaryShortcut = true
     ),
     CHROME(
         id = "chrome",
         displayName = "Chrome",
         hindiName = "Chrome (क्रोम ब्राउज़र)",
         primaryPackages = listOf("com.android.chrome"),
-        sampleCommand = "Chrome open karo"
+        aliases = listOf("chrome", "google chrome", "crome", "krome", "browser", "internet browser", "क्रोम", "गूगल क्रोम", "ब्राउज़र", "ब्राउजर"),
+        sampleCommand = "Chrome open karo",
+        isHomePrimaryShortcut = true
     ),
     FILES(
         id = "files",
@@ -37,8 +45,103 @@ enum class TargetApp(
             "com.google.android.documentsui",
             "com.android.documentsui"
         ),
-        sampleCommand = "Meri files kholo"
-    )
+        aliases = listOf("meri files", "my files", "files", "file manager", "file", "folder", "storage", "documents", "मेरी फाइलें", "मेरी फाइल", "फाइलें", "फाइल", "फ़ाइलें", "फ़ाइल", "फाइल मैनेजर", "फ़ोल्डर"),
+        sampleCommand = "Meri files kholo",
+        isHomePrimaryShortcut = true
+    ),
+    CAMERA(
+        id = "camera",
+        displayName = "Camera",
+        hindiName = "Camera (कैमरा)",
+        primaryPackages = listOf("com.android.camera", "com.android.camera2", "com.google.android.GoogleCamera"),
+        aliases = listOf("camera", "camra", "photo khicho", "selfie", "कैमरा", "फोटो खींचो", "सेल्फी"),
+        sampleCommand = "Munna, Camera kholo"
+    ),
+    SETTINGS(
+        id = "settings",
+        displayName = "Settings",
+        hindiName = "Settings (फ़ोन सेटिंग्स)",
+        primaryPackages = listOf("com.android.settings"),
+        aliases = listOf("phone settings", "system settings", "setting", "settings", "सेटिंग्स", "सेटिंग", "फ़ोन सेटिंग्स"),
+        sampleCommand = "Phone settings kholo"
+    ),
+    DIALER(
+        id = "dialer",
+        displayName = "Phone Dialer",
+        hindiName = "Phone Dialer (कॉल डायलर)",
+        primaryPackages = listOf("com.google.android.dialer", "com.android.dialer"),
+        aliases = listOf("dialer", "phone dialer", "call log", "keypad", "डायलर", "कॉल डायलर", "नंबर डायल"),
+        sampleCommand = "Phone dialer kholo"
+    ),
+    CALCULATOR(
+        id = "calculator",
+        displayName = "Calculator",
+        hindiName = "Calculator (कैलकुलेटर)",
+        primaryPackages = listOf("com.google.android.calculator", "com.android.calculator2"),
+        aliases = listOf("calculator", "calc", "hisab", "कैलकुलेटर", "हिसाब"),
+        sampleCommand = "Calculator kholo"
+    ),
+    MAPS(
+        id = "maps",
+        displayName = "Google Maps",
+        hindiName = "Google Maps (मैप्स)",
+        primaryPackages = listOf("com.google.android.apps.maps"),
+        aliases = listOf("google maps", "maps", "map", "navigation", "rasta", "गूगल मैप्स", "मैप्स", "मैप", "रास्ता"),
+        sampleCommand = "Google Maps kholo"
+    ),
+    GALLERY(
+        id = "gallery",
+        displayName = "Photos / Gallery",
+        hindiName = "Gallery (गैलरी / फ़ोटो)",
+        primaryPackages = listOf("com.google.android.apps.photos", "com.android.gallery3d"),
+        aliases = listOf("gallery", "photos", "google photos", "meri photo", "गैलरी", "फोटो", "फ़ोटो", "गूगल फोटोज"),
+        sampleCommand = "Gallery kholo"
+    ),
+    CLOCK(
+        id = "clock",
+        displayName = "Clock / Alarm",
+        hindiName = "Clock (अलार्म / घड़ी)",
+        primaryPackages = listOf("com.google.android.deskclock", "com.android.deskclock"),
+        aliases = listOf("alarm", "clock", "timer", "ghadi", "अलार्म", "घड़ी", "टाइमर"),
+        sampleCommand = "Alarm kholo"
+    ),
+    PLAY_STORE(
+        id = "play_store",
+        displayName = "Play Store",
+        hindiName = "Google Play Store (प्ले स्टोर)",
+        primaryPackages = listOf("com.android.vending"),
+        aliases = listOf("play store", "playstore", "google play", "प्ले स्टोर", "गूगल प्ले"),
+        sampleCommand = "Play Store kholo"
+    ),
+    GMAIL(
+        id = "gmail",
+        displayName = "Gmail",
+        hindiName = "Gmail (जीमेल / ईमेल)",
+        primaryPackages = listOf("com.google.android.gm"),
+        aliases = listOf("gmail", "email", "mail", "जीमेल", "ईमेल"),
+        sampleCommand = "Gmail kholo"
+    ),
+    INSTAGRAM(
+        id = "instagram",
+        displayName = "Instagram",
+        hindiName = "Instagram (इंस्टाग्राम)",
+        primaryPackages = listOf("com.instagram.android"),
+        aliases = listOf("instagram", "insta", "इंस्टाग्राम", "इंस्टा"),
+        sampleCommand = "Instagram kholo"
+    ),
+    TELEGRAM(
+        id = "telegram",
+        displayName = "Telegram",
+        hindiName = "Telegram (टेलीग्राम)",
+        primaryPackages = listOf("com.telegram.messenger", "org.telegram.messenger"),
+        aliases = listOf("telegram", "टेलीग्राम"),
+        sampleCommand = "Telegram kholo"
+    );
+
+    companion object {
+        val homeShortcuts: List<TargetApp> = entries.filter { it.isHomePrimaryShortcut }
+        val extraUtilityApps: List<TargetApp> = entries.filter { !it.isHomePrimaryShortcut }
+    }
 }
 
 sealed interface ParsedCommand {
@@ -52,6 +155,14 @@ sealed interface ParsedCommand {
         val targetApp: TargetApp
     ) : ParsedCommand {
         override val categoryLabel: String = "ऐप खोलें (${targetApp.displayName})"
+    }
+
+    data class OpenCustomAppByName(
+        override val rawText: String,
+        override val normalizedText: String,
+        val requestedAppName: String
+    ) : ParsedCommand {
+        override val categoryLabel: String = "कस्टम ऐप खोलें ($requestedAppName)"
     }
 
     data class TellTime(
@@ -114,25 +225,6 @@ object MunnaCommandParser {
         "खोलो", "खोल", "खोलिए", "खोल दो", "खोल दे", "चलाओ", "चला दो", "चालू करो", "ओपन करो", "ओपन"
     )
 
-    private val youtubeAliases = listOf(
-        "youtube", "you tube", "utube", "yt", "yutube", "यूट्यूब", "यू ट्यूब", "युटुब"
-    )
-
-    private val whatsappAliases = listOf(
-        "whatsapp", "whats app", "watsapp", "whatsap", "wa",
-        "व्हाट्सएप", "व्हाट्सऐप", "वाट्सएप", "वॉट्सऐप", "व्हाट्स अप"
-    )
-
-    private val chromeAliases = listOf(
-        "chrome", "google chrome", "crome", "krome", "browser", "internet browser",
-        "क्रोम", "गूगल क्रोम", "ब्राउज़र", "ब्राउजर"
-    )
-
-    private val filesAliases = listOf(
-        "meri files", "my files", "files", "file manager", "file", "folder", "storage", "documents",
-        "मेरी फाइलें", "मेरी फाइल", "फाइलें", "फाइल", "फ़ाइलें", "फ़ाइल", "फाइल मैनेजर", "फ़ोल्डर"
-    )
-
     private val timePhrases = listOf(
         "kitne baje", "kitna baja", "time kya", "kya time", "samay kya", "abhi kitne baje",
         "waqt kya", "what time", "current time", "tell me the time", "time batao", "time बताओ",
@@ -165,13 +257,12 @@ object MunnaCommandParser {
         cleaned = cleaned.replace(Regex("[।.,!?\"'`~:;\\-_()/\\\\]+"), " ")
         cleaned = cleaned.replace(Regex("\\s+"), " ").trim()
 
-        // Strip leading wake words iteratively
         var changed = true
         while (changed) {
             changed = false
             for (prefix in wakePrefixes) {
                 if (cleaned == prefix) {
-                    return cleaned // User only said "Munna" or "Hey Munna"
+                    return cleaned
                 }
                 if (cleaned.startsWith("$prefix ")) {
                     cleaned = cleaned.removePrefix("$prefix ").trim()
@@ -194,50 +285,63 @@ object MunnaCommandParser {
             return ParsedCommand.EmptyOrUnclear(rawInput, "")
         }
 
-        // 1. Check App Launching commands (with or without explicit action verb if app name is clearly spoken)
-        val hasOpenVerb = openActionVerbs.any { normalized.contains(it) }
-
-        if (youtubeAliases.any { normalized.contains(it) } && (hasOpenVerb || youtubeAliases.any { normalized == it })) {
-            return ParsedCommand.OpenApp(raw, normalized, TargetApp.YOUTUBE)
-        }
-        if (whatsappAliases.any { normalized.contains(it) } &&
-            !notificationPhrases.any { normalized.contains(it) } &&
-            (hasOpenVerb || whatsappAliases.any { normalized == it })
-        ) {
-            return ParsedCommand.OpenApp(raw, normalized, TargetApp.WHATSAPP)
-        }
-        if (chromeAliases.any { normalized.contains(it) } && (hasOpenVerb || chromeAliases.any { normalized == it })) {
-            return ParsedCommand.OpenApp(raw, normalized, TargetApp.CHROME)
-        }
-        if (filesAliases.any { normalized.contains(it) } && (hasOpenVerb || filesAliases.any { normalized == it })) {
-            return ParsedCommand.OpenApp(raw, normalized, TargetApp.FILES)
-        }
-
-        // 2. Check Time query
-        if (timePhrases.any { normalized.contains(it) } || normalized == "time" || normalized == "टाइम" || normalized == "समय") {
-            return ParsedCommand.TellTime(raw, normalized)
-        }
-
-        // 3. Check Date/Day query
-        if (datePhrases.any { normalized.contains(it) } || normalized == "date" || normalized == "तारीख") {
-            return ParsedCommand.TellDate(raw, normalized)
-        }
-
-        // 4. Check Notification reading
+        // 1. Check Notification reading first (so "whatsapp message padho" isn't confused with "whatsapp kholo")
         if (notificationPhrases.any { normalized.contains(it) }) {
             return ParsedCommand.ReadNotifications(raw, normalized)
         }
 
-        // 5. Check Greeting / "Munna, meri baat suno" / sole wake word
+        // 2. Check all known TargetApps (Primary shortcuts + Extended phone apps)
+        val hasOpenVerb = openActionVerbs.any { normalized.contains(it) }
+        for (targetApp in TargetApp.entries) {
+            val matchesAlias = targetApp.aliases.any { alias ->
+                normalized == alias ||
+                    normalized.startsWith("$alias ") ||
+                    normalized.endsWith(" $alias") ||
+                    normalized.contains(" $alias ")
+            }
+            if (matchesAlias && (hasOpenVerb || targetApp.aliases.any { normalized == it })) {
+                return ParsedCommand.OpenApp(raw, normalized, targetApp)
+            }
+        }
+
+        // 3. Check Time query
+        if (timePhrases.any { normalized.contains(it) } || normalized == "time" || normalized == "टाइम" || normalized == "समय") {
+            return ParsedCommand.TellTime(raw, normalized)
+        }
+
+        // 4. Check Date/Day query
+        if (datePhrases.any { normalized.contains(it) } || normalized == "date" || normalized == "तारीख") {
+            return ParsedCommand.TellDate(raw, normalized)
+        }
+
+        // 5. Check Greeting / "Munna, meri baat suno"
         if (wakePrefixes.contains(normalized) || greetingAndListenPhrases.any { normalized == it || normalized.contains(it) }) {
-            // Make sure it's not a longer complex question that happens to contain "suno"
             if (normalized.split(" ").size <= 6) {
                 return ParsedCommand.GreetingOrListen(raw, normalized)
             }
         }
 
-        // 6. Check if user asked to open an unknown app (e.g., "Instagram kholo", "Calculator kholo")
-        // Route general questions or unknown commands intelligently
+        // 6. Check if user explicitly asked to open a custom app by name (e.g. "Spotify kholo", "open Netflix")
+        if (hasOpenVerb && normalized.split(" ").size <= 4) {
+            var extractedName = normalized
+            for (verb in openActionVerbs.sortedByDescending { it.length }) {
+                extractedName = extractedName
+                    .removePrefix("$verb ")
+                    .removeSuffix(" $verb")
+                    .replace(" $verb ", " ")
+                    .trim()
+            }
+            extractedName = extractedName.removeSuffix("app").removeSuffix("ऐप").trim()
+            if (extractedName.isNotBlank() && extractedName.length >= 2) {
+                return ParsedCommand.OpenCustomAppByName(
+                    rawText = raw,
+                    normalizedText = normalized,
+                    requestedAppName = extractedName
+                )
+            }
+        }
+
+        // 7. Route general questions to Gemini AI Conversation Handler
         return ParsedCommand.AskAiQuestion(
             rawText = raw,
             normalizedText = normalized,

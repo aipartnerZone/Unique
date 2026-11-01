@@ -276,6 +276,7 @@ class FloatingMicService : Service() {
             val parsed = MunnaCommandParser.parse(recognizedText)
             val result = when (parsed) {
                 is ParsedCommand.OpenApp -> actionHandler.launchTargetApp(parsed.targetApp, settings.language)
+                is ParsedCommand.OpenCustomAppByName -> actionHandler.launchCustomAppByName(parsed.requestedAppName, settings.language)
                 is ParsedCommand.TellTime -> actionHandler.getCurrentTimeResponse(settings.language)
                 is ParsedCommand.TellDate -> actionHandler.getCurrentDateResponse(settings.language)
                 is ParsedCommand.GreetingOrListen -> actionHandler.getGreetingResponse(settings.language)

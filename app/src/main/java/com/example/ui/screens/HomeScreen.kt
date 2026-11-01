@@ -83,6 +83,7 @@ import com.example.ui.DevicePermissionsSnapshot
 import com.example.ui.LastActionFeedback
 import com.example.ui.components.CentralAnimatedMicrophone
 import com.example.ui.components.MunnaRobotLogo
+import com.example.ui.components.PhoneSetupAndHelpDialog
 import com.example.ui.theme.BrandChromeBlue
 import com.example.ui.theme.BrandFilesBlue
 import com.example.ui.theme.BrandWhatsAppGreen
@@ -111,6 +112,9 @@ private val sampleQuickCommands = listOf(
     "WhatsApp kholo.",
     "Chrome open karo.",
     "Meri files kholo.",
+    "Munna, Camera kholo.",
+    "Calculator kholo.",
+    "Phone settings kholo.",
     "Munna, abhi kitne baje hain?",
     "Munna, meri baat suno."
 )
@@ -126,6 +130,7 @@ fun HomeScreen(
     onMicClick: () -> Unit,
     onCancelListening: () -> Unit,
     onRequestMicPermission: () -> Unit,
+    onStartOverlayService: () -> Boolean = { false },
     onExecuteTextCommand: (String) -> Unit,
     onShortcutClick: (TargetApp) -> Unit,
     onSpeakResponse: (String) -> Unit,
@@ -137,7 +142,25 @@ fun HomeScreen(
 ) {
     var showTextInputBox by rememberSaveable { mutableStateOf(false) }
     var textCommandDraft by rememberSaveable { mutableStateOf("") }
+    var showPhoneSetupDialog by rememberSaveable { mutableStateOf(false) }
+    var phoneSetupInitialTab by rememberSaveable { mutableStateOf(0) }
     val focusManager = LocalFocusManager.current
+
+    if (showPhoneSetupDialog) {
+        PhoneSetupAndHelpDialog(
+            permissions = permissions,
+            ttsState = ttsState,
+            onDismiss = { showPhoneSetupDialog = false },
+            onRequestMicPermission = onRequestMicPermission,
+            onStartOverlayService = onStartOverlayService,
+            onTestTtsVoice = {
+                onSpeakResponse("नमस्ते भाई! मैं मुन्ना हूँ। बोलो, मुन्ना करेगा!")
+            },
+            onLaunchTargetApp = onShortcutClick,
+            onExecuteCustomAppCommand = onExecuteTextCommand,
+            initialTab = phoneSetupInitialTab
+        )
+    }
 
     LazyColumn(
         modifier = modifier
@@ -643,6 +666,117 @@ fun HomeScreen(
                                 .weight(1f)
                                 .testTag("shortcut_card_files")
                         )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Extended Phone Tools & Custom App Launcher Row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            onClick = {
+                                phoneSetupInitialTab = 1
+                                showPhoneSetupDialog = true
+                            },
+                            shape = RoundedCornerShape(50),
+                            color = MunnaSkyBlueDeep.copy(alpha = 0.35f),
+                            border = BorderStroke(1.dp, MunnaSkyBlue),
+                            modifier = Modifier.testTag("open_custom_app_launcher_chip")
+                        ) {
+                            Text(
+                                text = "➕ कोई भी ऐप खोलें (Custom App)",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MunnaCyanSoft,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
+                            )
+                        }
+
+                        TargetApp.extraUtilityApps.forEach { extraApp ->
+                            Surface(
+                                onClick = { onShortcutClick(extraApp) },
+                                shape = RoundedCornerShape(50),
+                                color = MunnaCardElevated,
+                                border = BorderStroke(1.dp, MunnaCardBorder)
+                            ) {
+                                Text(
+                                    text = extraApp.displayName,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MunnaTextWhite,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // One-Stop Phone Setup, Permissions & APK Download Guide Card
+        item {
+            val readyPermissionsCount = listOf(
+                permissions.hasRecordAudioPermission,
+                permissions.hasOverlayPermission,
+                permissions.hasNotificationAccess,
+                ttsState.isReady
+            ).count { it }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 600.dp)
+                    .clickable {
+                        phoneSetupInitialTab = 0
+                        showPhoneSetupDialog = true
+                    }
+                    .testTag("phone_setup_hub_card"),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = MunnaCardElevated),
+                border = BorderStroke(1.dp, MunnaCyanGlow.copy(alpha = 0.55f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "📲 फ़ोन सेटअप, परमिशन्स और APK गाइड",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MunnaCyanSoft,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "सभी अनुमतियाँ एक जगह चालू करें ($readyPermissionsCount/4 तैयार), कस्टम ऐप्स खोलें और बैटरी/आवाज़ टिप्स देखें।",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MunnaTextWhite
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Button(
+                            onClick = {
+                                phoneSetupInitialTab = 0
+                                showPhoneSetupDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MunnaSkyBlue),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            modifier = Modifier.testTag("open_phone_setup_button")
+                        ) {
+                            Text(
+                                text = "सेटअप खोलें",
+                                color = MunnaNavyDeep,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }

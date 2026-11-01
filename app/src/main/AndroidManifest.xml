@@ -23,7 +23,7 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
 
-        <!-- Supported Target Apps for Munna AI Shortcuts & Voice Commands -->
+        <!-- Primary & Extended Target Apps for Munna AI Voice Commands -->
         <package android:name="com.google.android.youtube" />
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
@@ -31,8 +31,27 @@
         <package android:name="com.google.android.apps.nbu.files" />
         <package android:name="com.android.documentsui" />
         <package android:name="com.google.android.documentsui" />
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.google.android.gm" />
+        <package android:name="com.google.android.apps.photos" />
+        <package android:name="com.google.android.calculator" />
+        <package android:name="com.google.android.deskclock" />
+        <package android:name="com.google.android.dialer" />
+        <package android:name="com.android.settings" />
+        <package android:name="com.android.vending" />
+        <package android:name="com.instagram.android" />
+        <package android:name="org.telegram.messenger" />
 
-        <!-- Standard Web & Document Intents -->
+        <!-- Standard System Actions (Camera, Dialer, Settings, Browser, Documents) -->
+        <intent>
+            <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.SETTINGS" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />

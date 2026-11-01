@@ -36,6 +36,21 @@ class ExampleUnitTest {
     }
 
     @Test
+    fun parse_extendedSystemAppsAndCustomAppNames_recognizesCorrectly() {
+        val cam = MunnaCommandParser.parse("Munna, Camera kholo.")
+        assertTrue(cam is ParsedCommand.OpenApp)
+        assertEquals(TargetApp.CAMERA, (cam as ParsedCommand.OpenApp).targetApp)
+
+        val calc = MunnaCommandParser.parse("Calculator kholo")
+        assertTrue(calc is ParsedCommand.OpenApp)
+        assertEquals(TargetApp.CALCULATOR, (calc as ParsedCommand.OpenApp).targetApp)
+
+        val custom = MunnaCommandParser.parse("Spotify kholo")
+        assertTrue(custom is ParsedCommand.OpenCustomAppByName)
+        assertEquals("spotify", (custom as ParsedCommand.OpenCustomAppByName).requestedAppName)
+    }
+
+    @Test
     fun parse_timeAndGreetingCommands_recognizesLocalActions() {
         val timeCmd = MunnaCommandParser.parse("Munna, abhi kitne baje hain?")
         assertTrue(timeCmd is ParsedCommand.TellTime)

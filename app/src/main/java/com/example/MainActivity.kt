@@ -293,6 +293,9 @@ fun MunnaAppRoot(
                                     pendingForChatInput = false
                                     micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                                 },
+                                onStartOverlayService = {
+                                    viewModel.toggleSystemOverlayService(true)
+                                },
                                 onExecuteTextCommand = { cmd -> viewModel.processVoiceOrTextCommand(cmd) },
                                 onShortcutClick = { app -> viewModel.launchShortcutApp(app) },
                                 onSpeakResponse = { text -> viewModel.speakTextAloud(text) },
