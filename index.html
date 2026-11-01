@@ -672,11 +672,15 @@
       </div>
 
       <div class="step-box">
-        <strong>तरीका 1: GitHub Releases से सीधा APK डाउनलोड करें</strong><br/>
-        यदि आपने इस प्रोजेक्ट को GitHub पर Push किया है, तो GitHub Actions अपने-आप <code>Munna-AI.apk</code> बना देता है। अपने GitHub यूज़रनेम और रिपॉजिटरी का नाम नीचे लिखकर सीधा डाउनलोड करें:
+        <strong>तरीका 1: GitHub Releases से सीधा APK डाउनलोड करें (Recommended)</strong><br/>
+        आपकी GitHub रिपॉजिटरी (<code>aipartnerZone/Unique</code>) पहले से जुड़ी हुई है। जब GitHub Actions बिल्ड पूरा हो जाए (हरा टिक ✅ दिखे), तो नीचे बटन दबाकर सीधा <code>Munna-AI.apk</code> डाउनलोड करें:
         <div class="input-row" style="margin-top: 8px;">
-          <input type="text" id="ghRepoInput" class="text-input" placeholder="username/repo-name" />
-          <button class="btn-primary" onclick="downloadFromGithubRelease()">APK पाएँ</button>
+          <input type="text" id="ghRepoInput" class="text-input" value="aipartnerZone/Unique" placeholder="username/repo-name" />
+          <button class="btn-primary" onclick="downloadFromGithubRelease()">⬇ APK डाउनलोड</button>
+        </div>
+        <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <a href="https://github.com/aipartnerZone/Unique/releases/latest/download/Munna-AI.apk" target="_blank" rel="noopener" style="color: var(--cyan-soft); font-size: 12px; font-weight: 600; text-decoration: underline;">👉 डायरेक्ट डाउनलोड लिंक (Munna-AI.apk)</a>
+          <a href="https://github.com/aipartnerZone/Unique/actions" target="_blank" rel="noopener" style="color: var(--sky-blue); font-size: 12px; font-weight: 600; text-decoration: underline;">⚙️ GitHub बिल्ड स्टेटस देखें</a>
         </div>
       </div>
 
