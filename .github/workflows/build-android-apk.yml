@@ -1,0 +1,98 @@
+name: Build Munna AI Android APK
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Ensure debug.keystore exists for signing
+        run: |
+          if [ ! -f debug.keystore ]; then
+            if [ -f debug.keystore.base64 ]; then
+              base64 -d debug.keystore.base64 > debug.keystore
+            else
+              keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            fi
+          fi
+
+      - name: Ensure google-services.json exists for cloud build
+        run: |
+          if [ ! -f app/google-services.json ]; then
+            cat << 'EOF' > app/google-services.json
+          {
+            "project_info": {
+              "project_number": "786917726849",
+              "project_id": "gen-lang-client-0712741465",
+              "storage_bucket": "gen-lang-client-0712741465.firebasestorage.app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:786917726849:android:933ce6e0c8f84612facb80",
+                  "android_client_info": {
+                    "package_name": "com.aistudio.munnaai.vkrp"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDummyKeyForGitHubActionsBuild00000"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+          fi
+
+      - name: Build Debug APK with Gradle
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Prepare Munna-AI.apk
+        run: cp app/build/outputs/apk/debug/app-debug.apk Munna-AI.apk
+
+      - name: Upload Munna-AI.apk as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Munna-AI-Android-APK
+          path: Munna-AI.apk
+
+      - name: Publish Munna-AI.apk to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: latest
+          name: "Munna AI — Latest Android APK"
+          body: "अपने Android फ़ोन में इंस्टॉल करने के लिए नीचे **Munna-AI.apk** पर टैप करके डाउनलोड करें।"
+          files: Munna-AI.apk
+          prerelease: false

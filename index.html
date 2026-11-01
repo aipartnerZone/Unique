@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Munna AI — Bolo, Munna Karega!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #071124;
+      --bg-dark: #0A192F;
+      --card-navy: #102240;
+      --card-elevated: #172F54;
+      --card-border: #234575;
+      --sky-blue: #38BDF8;
+      --sky-bright: #0EA5E9;
+      --sky-deep: #0284C7;
+      --cyan-glow: #22D3EE;
+      --cyan-soft: #67E8F9;
+      --text-white: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --success: #34D399;
+      --warning: #FBBF24;
+      --error: #F87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, #0A1830 50%, var(--bg-deep) 100%);
+      color: var(--text-white);
+      font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 84px;
+      position: relative;
+    }
+
+    /* Top Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 10px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .robot-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--sky-deep), var(--card-navy), var(--bg-deep));
+      border: 2px solid var(--cyan-glow);
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-title span {
+      color: var(--sky-blue);
+    }
+
+    .brand-tagline {
+      font-size: 12px;
+      color: var(--cyan-soft);
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--card-navy);
+      border: 1px solid var(--card-border);
+      color: var(--sky-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 8px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card-navy);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .apk-banner {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.35), rgba(23, 47, 84, 0.92));
+      border: 1.5px solid var(--cyan-glow);
+      box-shadow: 0 6px 20px rgba(34, 211, 238, 0.14);
+    }
+
+    .apk-banner-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sky-blue), var(--sky-bright));
+      color: var(--bg-deep);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .btn-outline {
+      background: var(--card-elevated);
+      color: var(--cyan-soft);
+      border: 1px solid var(--sky-blue);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Greeting Card */
+    .greeting-badge {
+      display: inline-block;
+      background: rgba(2, 132, 199, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--cyan-soft);
+      margin-bottom: 6px;
+    }
+
+    .greeting-text {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .feedback-box {
+      margin-top: 12px;
+      background: var(--card-elevated);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .feedback-cmd {
+      font-size: 12px;
+      color: var(--sky-blue);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    /* Central Animated Microphone */
+    .mic-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0 4px;
+    }
+
+    .mic-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .wave-bars {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .wave-bar {
+      width: 4px;
+      height: 16px;
+      border-radius: 99px;
+      background: rgba(56, 189, 248, 0.38);
+      transition: height 0.2s ease, background 0.2s ease;
+    }
+
+    .listening .wave-bar {
+      background: var(--cyan-glow);
+      animation: waveBounce 0.65s infinite ease-in-out alternate;
+    }
+
+    .listening .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+    .listening .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .listening .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+
+    @keyframes waveBounce {
+      0% { height: 10px; }
+      100% { height: 36px; }
+    }
+
+    .mic-outer-ring {
+      width: 146px;
+      height: 146px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.22) 0%, rgba(56, 189, 248, 0.06) 65%, transparent 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .listening .mic-outer-ring {
+      animation: pulseGlow 1.1s infinite ease-in-out alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.12); }
+    }
+
+    .mic-btn {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sky-blue), var(--sky-bright), #0369A1);
+      border: 2.5px solid var(--cyan-soft);
+      box-shadow: 0 10px 28px rgba(34, 211, 238, 0.42);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .mic-btn:active {
+      transform: scale(0.95);
+    }
+
+    .status-label {
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-white);
+      text-align: center;
+    }
+
+    /* Quick Chips */
+    .chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      background: var(--card-elevated);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--text-white);
+      border-radius: 99px;
+      padding: 7px 13px;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* 4 App Shortcuts Grid */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .shortcut-item {
+      background: var(--card-elevated);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .shortcut-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .shortcut-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Input Row */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .text-input {
+      flex: 1;
+      background: var(--bg-deep);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 11px 14px;
+      color: var(--text-white);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--sky-blue);
+    }
+
+    /* History List */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .history-item {
+      background: var(--card-elevated);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-navy);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px 12px;
+      z-index: 20;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 14px;
+    }
+
+    .nav-btn.active {
+      color: var(--sky-blue);
+      background: rgba(56, 189, 248, 0.14);
+      font-weight: 700;
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 17, 36, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: var(--card-navy);
+      border: 1.5px solid var(--sky-blue);
+      border-radius: 22px;
+      max-width: 440px;
+      width: 100%;
+      padding: 20px;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .step-box {
+      background: var(--card-elevated);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <!-- Top Header -->
+    <header class="top-bar">
+      <div class="brand-row">
+        <!-- Custom SVG Munna AI Robot Mascot Logo -->
+        <div class="robot-logo" aria-label="Munna AI Robot Logo">
+          <svg width="36" height="36" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="52" y="16" width="4" height="10" rx="2" fill="#94A3B8"/>
+            <circle cx="54" cy="14" r="5" fill="#22D3EE"/>
+            <rect x="18" y="38" width="9" height="22" rx="4" fill="#0EA5E9"/>
+            <rect x="81" y="38" width="9" height="22" rx="4" fill="#0EA5E9"/>
+            <rect x="25" y="25" width="58" height="46" rx="16" fill="#F8FAFC"/>
+            <rect x="31" y="33" width="46" height="30" rx="10" fill="#071124"/>
+            <path d="M38 47 Q43 40 48 47" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <path d="M60 47 Q65 40 70 47" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <path d="M47 55 Q54 60 61 55" stroke="#38BDF8" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            <rect x="35" y="73" width="38" height="16" rx="7" fill="#E2E8F0"/>
+            <circle cx="54" cy="81" r="7" fill="#0284C7"/>
+            <path d="M50.5 84 L50.5 78 L54 81.2 L57.5 78 L57.5 84" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">Munna <span>AI</span></div>
+          <div class="brand-tagline">Bolo, Munna Karega! • हिंदी / Hinglish</div>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="switchTab('settings')" title="सेटिंग्स">⚙️</button>
+    </header>
+
+    <main class="content">
+      <!-- Android APK Download Banner -->
+      <div class="card apk-banner">
+        <div class="apk-banner-row">
+          <div>
+            <div style="font-weight: 700; font-size: 14px; color: var(--cyan-soft);">📲 Munna AI Android App (APK)</div>
+            <div style="font-size: 12px; color: var(--text-white); margin-top: 2px;">
+              अपने फ़ोन के असली ऐप्स और फ़्लोटिंग माइक चलाने के लिए APK डाउनलोड करें।
+            </div>
+          </div>
+          <button class="btn-primary" onclick="openApkModal()">APK डाउनलोड</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: HOME -->
+      <section id="tab-home" class="tab-pane active">
+        <!-- Greeting Card -->
+        <div class="card">
+          <span class="greeting-badge">👋 मैं मुन्ना हूँ 😊</span>
+          <div class="greeting-text">नमस्ते भाई! मैं मुन्ना हूँ। बताओ, क्या करना है?</div>
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-cmd" id="lastCommandLabel">कमांड: "नमस्ते मुन्ना"</div>
+            <div id="lastResponseText">माइक दबाकर बोलें: "Munna, YouTube kholo", "WhatsApp kholo", "अभी कितने बजे हैं?"</div>
+          </div>
+        </div>
+
+        <!-- Central Animated Microphone -->
+        <div class="mic-section" id="micContainer">
+          <div class="mic-row">
+            <div class="wave-bars">
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+
+            <div class="mic-outer-ring">
+              <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecognition()" aria-label="बोलने के लिए माइक दबाएँ">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="wave-bars">
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+          </div>
+
+          <div class="status-label" id="micStatusLabel">बोलने के लिए माइक दबाएँ</div>
+
+          <!-- Text Command Input -->
+          <div class="input-row" style="width: 100%; margin-top: 12px;">
+            <input type="text" id="commandInput" class="text-input" placeholder="या यहाँ लिखें: Munna, YouTube kholo..." onkeydown="if(event.key==='Enter') runTypedCommand()" />
+            <button class="btn-primary" onclick="runTypedCommand()">भेजें</button>
+          </div>
+        </div>
+
+        <!-- Example Voice Commands -->
+        <div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">
+            ⚡ बोलकर या टैप करके आज़माएँ:
+          </div>
+          <div class="chips-scroll">
+            <button class="chip" onclick="executeCommand('Munna, YouTube kholo.')">🎙️ "Munna, YouTube kholo."</button>
+            <button class="chip" onclick="executeCommand('WhatsApp kholo.')">🎙️ "WhatsApp kholo."</button>
+            <button class="chip" onclick="executeCommand('Chrome open karo.')">🎙️ "Chrome open karo."</button>
+            <button class="chip" onclick="executeCommand('Meri files kholo.')">🎙️ "Meri files kholo."</button>
+            <button class="chip" onclick="executeCommand('Munna, abhi kitne baje hain?')">🎙️ "Munna, abhi kitne baje hain?"</button>
+            <button class="chip" onclick="executeCommand('Munna, meri baat suno.')">🎙️ "Munna, meri baat suno."</button>
+          </div>
+        </div>
+
+        <!-- 4 App Shortcuts -->
+        <div class="card">
+          <div style="font-size: 15px; font-weight: 700;">⚡ जल्दी करने के लिए (App Shortcuts)</div>
+          <div class="shortcuts-grid">
+            <div class="shortcut-item" onclick="executeCommand('Munna, YouTube kholo.')">
+              <div class="shortcut-icon" style="background: rgba(255,0,0,0.18); color: #FF4444;">▶</div>
+              <div class="shortcut-name">YouTube</div>
+            </div>
+            <div class="shortcut-item" onclick="executeCommand('WhatsApp kholo.')">
+              <div class="shortcut-icon" style="background: rgba(37,211,102,0.18); color: #25D366;">💬</div>
+              <div class="shortcut-name">WhatsApp</div>
+            </div>
+            <div class="shortcut-item" onclick="executeCommand('Chrome open karo.')">
+              <div class="shortcut-icon" style="background: rgba(66,133,244,0.18); color: #4285F4;">🌐</div>
+              <div class="shortcut-name">Chrome</div>
+            </div>
+            <div class="shortcut-item" onclick="executeCommand('Meri files kholo.')">
+              <div class="shortcut-icon" style="background: rgba(14,165,233,0.18); color: #38BDF8;">📁</div>
+              <div class="shortcut-name">Files</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Commands Preview -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 15px; font-weight: 700;">🕒 हाल के कमांड (Recent Commands)</div>
+            <button class="btn-outline" onclick="switchTab('history')">सभी देखें →</button>
+          </div>
+          <div class="history-list" id="recentHistoryPreview"></div>
+        </div>
+      </section>
+
+      <!-- TAB 2: AI CHAT -->
+      <section id="tab-chat" class="tab-pane">
+        <div class="card">
+          <div style="font-size: 16px; font-weight: 700; color: var(--cyan-soft);">🤖 मुन्ना AI दोस्त (हिंदी/हिंग्लिश चैट)</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+            यहाँ कोई भी सवाल पूछें या बोलें। (पूरी Gemini AI स्ट्रीमिंग और ऑफ़लाइन कंट्रोल के लिए ऊपर दिए गए बटन से Native Android APK इंस्टॉल करें।)
+          </div>
+          <div id="chatMessagesBox" style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px; max-height: 360px; overflow-y: auto;"></div>
+          <div class="input-row" style="margin-top: 14px;">
+            <input type="text" id="chatInput" class="text-input" placeholder="मुन्ना से हिंदी या हिंग्लिश में पूछें..." onkeydown="if(event.key==='Enter') sendWebChatMessage()" />
+            <button class="btn-primary" onclick="sendWebChatMessage()">पूछें</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: HISTORY -->
+      <section id="tab-history" class="tab-pane">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 16px; font-weight: 700;">📜 कमांड इतिहास (Command History)</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">कच्ची ऑडियो रिकॉर्डिंग कभी सेव नहीं होती।</div>
+            </div>
+            <button class="btn-outline" onclick="clearHistory()">साफ़ करें</button>
+          </div>
+          <div class="history-list" id="fullHistoryList" style="margin-top: 14px;"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: SETTINGS -->
+      <section id="tab-settings" class="tab-pane">
+        <div class="card">
+          <div style="font-size: 16px; font-weight: 700;">⚙️ सेटिंग्स और नेटिव Android जानकारी</div>
+          <div class="step-box">
+            <strong>🔊 बोलकर जवाब (Spoken Responses):</strong>
+            <label style="float: right;">
+              <input type="checkbox" id="ttsToggle" checked /> चालू
+            </label>
+          </div>
+          <div class="step-box">
+            <strong>🤖 Native Android बनाम Web संस्करण:</strong><br/>
+            • यह वेब पेज आपके Vercel डोमेन पर तुरंत चलने के लिए बनाया गया है।<br/>
+            • फ़ोन के असली इंस्टॉल्ड ऐप्स (Camera, WhatsApp, Files), सिस्टम-वाइड **फ़्लोटिंग माइक ओवरले**, और **नोटिफिकेशन रीडर** चलाने के लिए ऊपर **APK डाउनलोड** बटन दबाकर अपने Android फ़ोन में असली Munna AI ऐप इंस्टॉल करें।
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" id="nav-home" onclick="switchTab('home')">
+        <span>🏠</span><span>होम</span>
+      </button>
+      <button class="nav-btn" id="nav-chat" onclick="switchTab('chat')">
+        <span>💬</span><span>AI चैट</span>
+      </button>
+      <button class="nav-btn" id="nav-history" onclick="switchTab('history')">
+        <span>🕒</span><span>इतिहास</span>
+      </button>
+      <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
+        <span>⚙️</span><span>सेटिंग्स</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- APK Download Modal -->
+  <div class="modal-backdrop" id="apkModal">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 17px; font-weight: 700; color: var(--cyan-soft);">📲 अपने फ़ोन में Munna AI APK डाउनलोड करें</div>
+        <button class="icon-btn" style="width: 32px; height: 32px;" onclick="closeApkModal()">✕</button>
+      </div>
+
+      <div class="step-box">
+        <strong>तरीका 1: GitHub Releases से सीधा APK डाउनलोड करें</strong><br/>
+        यदि आपने इस प्रोजेक्ट को GitHub पर Push किया है, तो GitHub Actions अपने-आप <code>Munna-AI.apk</code> बना देता है। अपने GitHub यूज़रनेम और रिपॉजिटरी का नाम नीचे लिखकर सीधा डाउनलोड करें:
+        <div class="input-row" style="margin-top: 8px;">
+          <input type="text" id="ghRepoInput" class="text-input" placeholder="username/repo-name" />
+          <button class="btn-primary" onclick="downloadFromGithubRelease()">APK पाएँ</button>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <strong>तरीका 2: Google AI Studio से सीधा डाउनलोड करें</strong><br/>
+        1. Google AI Studio में ऊपर दाएँ कोने (Top-Right) में <strong>Settings (⚙️) / Export</strong> पर टैप करें।<br/>
+        2. <strong>Generate APK</strong> पर क्लिक करें।<br/>
+        3. डाउनलोड हुई <code>.apk</code> फ़ाइल पर टैप करके अपने Android फ़ोन में <strong>Install</strong> कर लें!
+      </div>
+
+      <button class="btn-primary" style="width: 100%; margin-top: 14px;" onclick="closeApkModal()">बंद करें</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'munna_ai_web_history_v1';
+    let historyItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let recognition = null;
+    let isListening = false;
+
+    const chatHistory = [
+      { sender: 'MUNNA', text: 'नमस्ते भाई! 👋 मैं मुन्ना AI हूँ। आप मुझसे हिंदी या हिंग्लिश में कुछ भी पूछ सकते हैं!' }
+    ];
+
+    function speakHindi(text) {
+      const ttsEnabled = document.getElementById('ttsToggle')?.checked ?? true;
+      if (!ttsEnabled || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'hi-IN';
+        utter.rate = 1.0;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {}
+    }
+
+    function switchTab(tabName) {
+      ['home', 'chat', 'history', 'settings'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tabName);
+        document.getElementById('nav-' + t).classList.toggle('active', t === tabName);
+      });
+      renderHistory();
+      renderChat();
+    }
+
+    function runTypedCommand() {
+      const input = document.getElementById('commandInput');
+      const val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      executeCommand(val);
+    }
+
+    function executeCommand(rawCmd) {
+      const lower = rawCmd.toLowerCase();
+      let response = '';
+      let status = 'काम पूरा हुआ!';
+      let ok = true;
+
+      if (lower.includes('youtube') || lower.includes('यूट्यूब')) {
+        response = 'ठीक है भाई, YouTube खोल रहा हूँ।';
+        window.open('https://m.youtube.com', '_blank', 'noopener');
+      } else if (lower.includes('whatsapp') || lower.includes('व्हाट्सएप')) {
+        response = 'ठीक है भाई, WhatsApp खोल रहा हूँ। (असली फ़ोन ऐप के लिए Android APK इंस्टॉल करें)';
+        window.open('https://wa.me/', '_blank', 'noopener');
+      } else if (lower.includes('chrome') || lower.includes('google') || lower.includes('क्रोम')) {
+        response = 'ठीक है भाई, Google / Chrome खोल रहा हूँ।';
+        window.open('https://www.google.com', '_blank', 'noopener');
+      } else if (lower.includes('file') || lower.includes('फाइल') || lower.includes('फ़ाइल')) {
+        ok = false;
+        status = 'Native Android आवश्यक';
+        response = 'भाई, वेब ब्राउज़र से फ़ोन की फाइलें सीधे नहीं खुल सकतीं। इसके लिए ऊपर दिए गए बटन से Munna AI Android APK अपने फ़ोन में इंस्टॉल करें!';
+      } else if (lower.includes('baje') || lower.includes('time') || lower.includes('समय') || lower.includes('कितने बजे')) {
+        const now = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+        response = 'भाई, अभी समय ' + now + ' हुआ है।';
+      } else if (lower.includes('tarikh') || lower.includes('date') || lower.includes('तारीख')) {
+        const today = new Date().toLocaleDateString('hi-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        response = 'भाई, आज ' + today + ' है।';
+      } else {
+        response = 'हाँ भाई, मैं मुन्ना ध्यान से सुन रहा हूँ! बताओ, कौन सा ऐप खोलना है या क्या मदद करनी है?';
+      }
+
+      document.getElementById('lastCommandLabel').textContent = 'कमांड: "' + rawCmd + '"';
+      document.getElementById('lastResponseText').textContent = response;
+      document.getElementById('micStatusLabel').textContent = status;
+      speakHindi(response);
+
+      historyItems.unshift({
+        cmd: rawCmd,
+        status: status,
+        ok: ok,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      historyItems = historyItems.slice(0, 25);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(historyItems));
+      renderHistory();
+    }
+
+    function toggleVoiceRecognition() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        document.getElementById('micStatusLabel').textContent = 'ब्राउज़र में माइक उपलब्ध नहीं — नीचे टाइप करें';
+        return;
+      }
+
+      if (isListening && recognition) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new SpeechRec();
+      recognition.lang = 'hi-IN';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('micContainer').classList.add('listening');
+        document.getElementById('micStatusLabel').textContent = 'सुन रहा हूँ…';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('micStatusLabel').textContent = 'आपकी बात समझ रहा हूँ…';
+        executeCommand(transcript);
+      };
+
+      recognition.onerror = () => {
+        document.getElementById('micStatusLabel').textContent = 'आवाज़ साफ़ नहीं आई, दोबारा माइक दबाएँ';
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        document.getElementById('micContainer').classList.remove('listening');
+      };
+
+      recognition.start();
+    }
+
+    function renderHistory() {
+      const preview = document.getElementById('recentHistoryPreview');
+      const full = document.getElementById('fullHistoryList');
+      if (!historyItems.length) {
+        const emptyHtml = '<div style="font-size:12px;color:var(--text-secondary);">अभी तक कोई कमांड नहीं दिया गया है।</div>';
+        if (preview) preview.innerHTML = emptyHtml;
+        if (full) full.innerHTML = emptyHtml;
+        return;
+      }
+      const makeRows = (arr) => arr.map(item => `
+        <div class="history-item">
+          <div>
+            <div style="font-weight:600;">${item.ok ? '✅' : '⚠️'} "${item.cmd}"</div>
+            <div style="font-size:11px;color:var(--cyan-soft);">${item.status}</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-secondary);">${item.time}</div>
+        </div>
+      `).join('');
+      if (preview) preview.innerHTML = makeRows(historyItems.slice(0, 3));
+      if (full) full.innerHTML = makeRows(historyItems);
+    }
+
+    function clearHistory() {
+      historyItems = [];
+      localStorage.removeItem(STORAGE_KEY);
+      renderHistory();
+    }
+
+    function renderChat() {
+      const box = document.getElementById('chatMessagesBox');
+      if (!box) return;
+      box.innerHTML = chatHistory.map(m => `
+        <div style="align-self:${m.sender === 'USER' ? 'flex-end' : 'flex-start'};background:${m.sender === 'USER' ? 'var(--sky-deep)' : 'var(--card-elevated)'};border:1px solid var(--card-border);border-radius:14px;padding:10px 12px;max-width:85%;font-size:13px;">
+          <div style="font-size:11px;font-weight:700;color:var(--cyan-soft);margin-bottom:3px;">${m.sender === 'USER' ? 'आप' : '🤖 मुन्ना AI'}</div>
+          <div>${m.text}</div>
+        </div>
+      `).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendWebChatMessage() {
+      const input = document.getElementById('chatInput');
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+      chatHistory.push({ sender: 'USER', text: q });
+      const reply = 'भाई, आपने पूछा: "' + q + '"। पूरी Gemini AI बातचीत और फ़ोन कंट्रोल के लिए ऊपर दिए गए बटन से Munna AI Android APK अपने फ़ोन में इंस्टॉल करें, या होम टैब से वॉइस कमांड आज़माएँ!';
+      chatHistory.push({ sender: 'MUNNA', text: reply });
+      renderChat();
+      speakHindi(reply);
+    }
+
+    function openApkModal() {
+      document.getElementById('apkModal').classList.add('open');
+    }
+
+    function closeApkModal() {
+      document.getElementById('apkModal').classList.remove('open');
+    }
+
+    function downloadFromGithubRelease() {
+      const repo = document.getElementById('ghRepoInput').value.trim();
+      if (!repo || !repo.includes('/')) {
+        alert('कृपया अपना GitHub username/repository नाम लिखें (जैसे: rahul/munna-ai)');
+        return;
+      }
+      window.open('https://github.com/' + repo + '/releases/latest/download/Munna-AI.apk', '_blank', 'noopener');
+    }
+
+    renderHistory();
+    renderChat();
+  </script>
+</body>
+</html>

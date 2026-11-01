@@ -434,7 +434,7 @@ fun PhoneSetupAndHelpDialog(
                     }
 
                     2 -> {
-                        // TAB 2: Hindi APK Install, Battery & Voice Troubleshooting Guide
+                        // TAB 2: Hindi APK Install, GitHub + Vercel Guide, Battery & Voice Troubleshooting
                         TroubleshootingGuideCard(
                             icon = Icons.Default.Download,
                             title = "📲 1. अपने फ़ोन में APK कैसे डाउनलोड और इंस्टॉल करें?",
@@ -443,6 +443,21 @@ fun PhoneSetupAndHelpDialog(
                                 "'Generate APK' (या Download APK) चुनें और फ़ाइल डाउनलोड होने दें।",
                                 "फ़ोन के Downloads फ़ोल्डर में जाकर APK फ़ाइल पर टैप करें।",
                                 "यदि 'Install unknown apps' दिखे तो उसे Allow करें और Install दबाएँ।"
+                            ),
+                            actionText = null,
+                            onAction = null
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        TroubleshootingGuideCard(
+                            icon = Icons.AutoMirrored.Filled.Launch,
+                            title = "🌐 2. GitHub से Vercel 404 ठीक करें और ऑटोमैटिक APK बनाएँ:",
+                            bulletPoints = listOf(
+                                "इस प्रोजेक्ट में अब index.html, vercel.json और GitHub Actions (.github/workflows/build-android-apk.yml) जोड़ दिए गए हैं।",
+                                "Google AI Studio में ऊपर से कोड को अपने GitHub रिपॉजिटरी में Push / Sync करें।",
+                                "Push होते ही आपकी Vercel वेबसाइट (unique-public.vercel.app) पर 404 हट जाएगा और Munna AI Web App + APK Portal खुल जाएगा!",
+                                "साथ ही GitHub के 'Actions' और 'Releases' टैब में 'Munna-AI.apk' अपने-आप बनकर डाउनलोड के लिए तैयार मिलेगा।"
                             ),
                             actionText = null,
                             onAction = null

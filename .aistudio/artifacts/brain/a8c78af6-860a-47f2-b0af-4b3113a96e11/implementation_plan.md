@@ -1,95 +1,83 @@
-# Munna AI — फ़ोन सेटअप हब, एक्सटेंडेड ऐप लॉन्चर और हिंदी ट्रबलशूटिंग गाइड
+# Munna AI — Vercel 404 Fix (Live Web App + APK Portal) & GitHub Automatic APK Builder
 
-यह योजना **Munna AI (“Bolo, Munna Karega!”)** को आपके असली Android फ़ोन पर और अधिक शक्तिशाली और आसान बनाने के लिए तीन नए फीचर्स जोड़ती है: **(1) सभी परमिशन्स को एक ही जगह से जांचने और चालू करने का 'फ़ोन सेटअप हब'**, **(2) आवाज़ से फ़ोन के अन्य ऐप्स (Camera, Settings, Dialer, Maps, Calculator, Clock, Play Store आदि) खोलने की सुविधा**, और **(3) हिंदी में APK इंस्टॉल, माइक/TTS आवाज़ और बैटरी ट्रबलशूटिंग गाइड**।
+यह योजना आपके `unique-public.vercel.app` पर आने वाले **404 (यह पेज मौजूद नहीं है)** एरर को जड़ से ठीक करती है और साथ ही **GitHub पर अपने-आप Android APK फ़ाइल बनाने और डाउनलोड करने** की सुविधा जोड़ती है।
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> आपके द्वारा चुने गए तीनों फीचर्स को इस प्लान में शामिल किया गया है। नीचे **"Proceed"** बटन दबाते ही हम इन्हें ऐप में जोड़ देंगे।
+> आपके द्वारा चुने गए दोनों विकल्प इस योजना में शामिल हैं। नीचे **Proceed** पर क्लिक करते ही हम इसे लागू कर देंगे, जिसके बाद GitHub पर Push करते ही आपकी Vercel वेबसाइट भी चलेगी और फ़ोन के लिए APK भी बन जाएगी।
 
-- **Confirmed Decision 1 (One-Stop Permissions & Setup Hub)**: होम स्क्रीन और सेटिंग्स में एक आसान **"फ़ोन रेडीनेस और परमिशन कार्ड"** जोड़ा जाएगा जहाँ से माइक, फ़्लोटिंग ओवरले, नोटिफिकेशन एक्सेस और हिंदी TTS आवाज़ को एक टैप में चेक और चालू किया जा सकेगा।
-- **Confirmed Decision 2 (Custom & System App Launching)**: YouTube, WhatsApp, Chrome और Files के साथ-साथ अब आप बोलकर **Camera, Settings, Phone Dialer, Calculator, Google Maps, Clock/Alarm, Gmail, Photos/Gallery और Play Store** जैसे ऐप्स भी खोल सकेंगे।
-- **Confirmed Decision 3 (Hindi Battery, Voice & APK Guide)**: ऐप के अंदर एक इंटरैक्टिव **"फ़ोन में चलाने और समस्या समाधान (Troubleshooting) गाइड"** उपलब्ध होगी जो APK इंस्टॉल करने, हिंदी आवाज़ डाउनलोड करने और फ़्लोटिंग माइक को बैटरी सेवर से बचाने के सटीक स्टेप्स बताएगी।
+- **Confirmed Decision 1 (Vercel 404 Fix — Live Munna AI Web App + APK Download Page)**:
+  - प्रोजेक्ट में वेब एंट्री और Vercel रूटिंग जोड़ी जाएगी ताकि `unique-public.vercel.app` खोलने पर `404` के बजाय **पूरा Munna AI वेब ऐप** (माइक, हिंदी/हिंग्लिश वॉइस कमांड्स, बोलती हुई आवाज़, शॉर्टकट्स, इतिहास, सेटिंग्स) और **"Download Android APK"** बटन दिखे।
+- **Confirmed Decision 2 (GitHub Actions Automatic APK Builder)**:
+  - जब भी आप कोड को GitHub पर भेजेंगे, GitHub अपने-आप Android प्रोजेक्ट को बिल्ड करके `Munna-AI.apk` तैयार करेगा (जिसे आप GitHub के **Actions** या **Releases** टैब से सीधे अपने फ़ोन में डाउनलोड कर सकेंगे)।
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Does**: यह अपडेट शुरुआती (Beginner) Android यूज़र्स को अपने फ़ोन में Munna AI इंस्टॉल करने के तुरंत बाद सभी ज़रूरी सेटिंग्स 1 मिनट में पूरी करने, ज़्यादा फ़ोन ऐप्स को हिंदी/हिंग्लिश आवाज़ से खोलने, और माइक या बैटरी से जुड़ी किसी भी समस्या को खुद हल करने में सक्षम बनाता है।
-- **Target Audience / Persona**: वे भारतीय Android स्मार्टफोन यूज़र्स जो हिंदी या हिंग्लिश में बोलकर अपना फ़ोन आसानी से कंट्रोल करना चाहते हैं।
-- **Key Value**: बार-बार अलग-अलग Android सेटिंग्स ढूँढने की झंझट खत्म होती है और वॉइस कमांड से खुलने वाले ऐप्स की संख्या दोगुनी से अधिक हो जाती है।
+- **What It Does**: एक ही GitHub रिपॉजिटरी से दोनों काम पूरे होंगे:
+  1. **Vercel** पर आपकी वेबसाइट (`unique-public.vercel.app`) बिना किसी 404 एरर के लाइव चलेगी।
+  2. **Android फ़ोन** के लिए असली Native Android कोड भी सुरक्षित रहेगा और GitHub हर अपडेट पर अपने-आप इंस्टॉल करने योग्य `.apk` फ़ाइल बना देगा।
+- **Target Audience / Persona**: मोबाइल से काम करने वाले डेवलपर्स और यूज़र्स जो अपनी ऐप को वेब लिंक (Vercel) और Android APK दोनों रूपों में चलाना और शेयर करना चाहते हैं।
+- **Key Value**: न तो Vercel पर 404 आएगा, और न ही आपको APK बनाने के लिए कंप्यूटर या Android Studio की ज़रूरत पड़ेगी।
 
 ---
 
 ## 2. User Experience & Visual Design
 
 - **Key User Flows**:
-  1. **फ़ोन सेटअप और परमिशन चेकलिस्ट (One-Tap Readiness Hub)**:
-     - होम स्क्रीन के ऊपरी हिस्से में एक कॉम्पैक्ट **"फ़ोन सेटअप स्थिति (Phone Setup Status)"** बैनर दिखेगा।
-     - इस पर टैप करने पर चारों मुख्य क्षमताओं (Microphone, Floating Overlay, Notification Reader, और Hindi TTS Voice) की लाइव स्थिति दिखेगी और हर एक के सामने **"अभी चालू करें (Allow / Setup)"** बटन होगा।
-  2. **विस्तारित ऐप लॉन्चिंग (Extended Voice App Launcher)**:
-     - यूज़र बोल सकता है: *"Munna, Camera kholo"*, *"Settings kholo"*, *"Calculator chalu karo"*, *"Maps kholo"*, *"Phone dialer kholo"*, या किसी भी अन्य ऐप का नाम।
-     - यदि वह ऐप या सिस्टम एक्शन फ़ोन में उपलब्ध है, तो मुन्ना तुरंत उसे खोलेगा और हिंदी में पुष्टि बोलेगा; यदि इंस्टॉल नहीं है, तो साफ और सच्ची जानकारी देगा।
-  3. **हिंदी APK, वॉइस और बैटरी ट्रबलशूटिंग गाइड**:
-     - एक सरल, स्टेप-बाय-स्टेप कार्ड शीट जिसमें:
-       - AI Studio से `.apk` डाउनलोड और फ़ोन में इंस्टॉल करने की विधि।
-       - यदि आवाज़ न आए तो Android TTS सेटिंग्स (`Install voice data`) सीधा खोलने का बटन।
-       - फ़्लोटिंग माइक बैकग्राउंड में बंद न हो, इसके लिए Android App Info / Battery Optimization सेटिंग्स खोलने का सीधा बटन।
+  1. **Vercel वेबसाइट खोलने पर (`unique-public.vercel.app`)**:
+     - यूज़र को गहरा नेवी ब्लू और स्काई-ब्लू **Munna AI (“Bolo, Munna Karega!”)** इंटरफ़ेस दिखेगा।
+     - ऊपर **"📲 Android APK डाउनलोड करें"** का चमकता हुआ बटन होगा, और बीच में लाइव एनिमेटेड माइक होगा जो ब्राउज़र के Web Speech API से हिंदी/हिंग्लिश कमांड सुनेगा और बोलकर जवाब देगा।
+  2. **GitHub से अपने फ़ोन में APK डाउनलोड करने पर**:
+     - GitHub पर कोड पुश होते ही ऑटोमैटिक बिल्ड चलेगा और तैयार `Munna-AI.apk` फ़ाइल डाउनलोड के लिए उपलब्ध हो जाएगी।
+  3. **ऐप के अंदर गाइड**:
+     - Android ऐप के सेटअप हब में भी Vercel और GitHub से APK पाने के आसान हिंदी स्टेप्स दिखेंगे।
 
 - **Visual Identity & Theme**:
-  - *Aesthetic Direction*: प्रीमियम डार्क नेवी और स्काई-ब्लू इंटरफ़ेस जो छोटे Android स्क्रीन्स पर भी साफ़ और हल्का दिखता है।
+  - *Aesthetic Direction*: आधुनिक, प्रीमियम डार्क नेवी और सियान ग्लो इंटरफ़ेस (मोबाइल-फ़र्स्ट रिस्पॉन्सिव लेआउट)।
   - *Color Palette & Mood*:
     - `--background`: Deep Navy Blue (`#071124`)
-    - `--surface`: Elevated Navy Card (`#102240` / `#172F54`)
+    - `--surface`: Lighter Navy Card (`#102240`)
     - `--primary`: Sky Blue (`#38BDF8`)
     - `--accent`: Soft Cyan Glow (`#22D3EE`)
-    - `--success` / `--warning`: Emerald Green (`#34D399`) और Amber (`#FBBF24`)
-  - *Typography & Hierarchy*: हिंदी देवनागरी के लिए `Noto Sans Devanagari` और अंग्रेज़ी/हिंग्लिश लेबल्स के लिए `Plus Jakarta Sans`।
-  - *Interactive Feedback & Motion*: हर परमिशन ग्रांट होने पर तुरंत हरा चेकमार्क अपडेट होगा और ऐप वापस आने पर (`ON_RESUME`) स्थिति अपने-आप रिफ्रेश होगी।
+  - *Typography & Hierarchy*: साफ़ हिंदी देवनागरी और अंग्रेज़ी फ़ॉन्ट्स, बड़े टच बटन और बिना हॉरिजॉन्टल स्क्रॉल वाला मोबाइल लेआउट।
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-- **Decision 1: सुरक्षित पैकेज विज़िबिलिटी और सिस्टम इंटेंट्स के साथ कस्टम ऐप लॉन्चिंग**
-  - *Chosen Approach*: Google Play की गोपनीयता नीतियों का पालन करते हुए बिना संवेदनशील `QUERY_ALL_PACKAGES` परमिशन माँगे, प्रमुख ऐप्स के पैकेज नाम और मानक Android System Intents (`ACTION_IMAGE_CAPTURE`, `ACTION_DIAL`, `Settings.ACTION_SETTINGS`, `AlarmClock`, `CATEGORY_APP_CALCULATOR`, `CATEGORY_APP_MAPS` आदि) का संयोजन।
-  - *Why*: इससे सुरक्षा और गोपनीयता भी बनी रहती है और यूज़र के फ़ोन के सभी ज़रूरी ऐप्स बिना किसी रुकावट के खुल जाते हैं।
-- **Decision 2: वन-टैप सिस्टम सेटिंग्स शॉर्टकट्स (Direct Android Settings Intents)**
-  - *Chosen Approach*: ट्रबलशूटिंग गाइड में केवल टेक्स्ट लिखने के बजाय सीधे Android के संबंधित सेटिंग्स पेज (`ACTION_TTS_SETTINGS`, `ACTION_APPLICATION_DETAILS_SETTINGS`, `ACTION_MANAGE_OVERLAY_PERMISSION`) खोलने वाले बटन देना।
-  - *Why*: एक शुरुआती यूज़र को फ़ोन की सेटिंग्स के अंदर भटकना नहीं पड़ता।
+- **Decision 1: एक ही प्रोजेक्ट में Native Android + Static Web Entry का सह-अस्तित्व**
+  - *Chosen Approach*: Android के बिल्ड सिस्टम (Gradle) को छेड़े बिना प्रोजेक्ट के रूट और पब्लिक आउटपुट में वेब असिस्टेंट और Vercel कॉन्फ़िगरेशन रखना।
+  - *Why*: इससे AI Studio का Android Emulator भी 100% काम करता रहेगा और Vercel को भी तुरंत वेबसाइट फ़ाइल मिल जाएगी, जिससे 404 एरर तुरंत खत्म हो जाएगा।
+- **Decision 2: GitHub Actions में Java 17 + Android SDK के साथ ऑटोमैटिक APK बिल्ड**
+  - *Chosen Approach*: क्लाउड रनर पर Gradle के ज़रिए Debug APK बनाना और उसे Artifact व Release के रूप में अपलोड करना।
+  - *Why*: यूज़र केवल अपने मोबाइल ब्राउज़र से GitHub खोलकर एक टैप में `.apk` डाउनलोड कर सकता है।
 
 ---
 
 ## 4. Technical Architecture & Data Strategy *(Technical Reference)*
 
-- **Architecture & Component Diagram**:
+- **Architecture & Deployment Flow Diagram**:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                        Munna AI — UI Layer (Compose)                     │
-│                                                                          │
-│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────┐  │
-│  │     Home Screen      │  │  Phone Setup & Help  │  │ Settings &     │  │
-│  │ • Central Mic        │  │  • 1-Tap Permissions │  │ Troubleshooting│  │
-│  │ • App Shortcuts      │  │  • APK Install Steps │  │ • TTS & Battery│  │
-│  │ • Custom App Trigger │  │  • Voice/Battery Fix │  │   Shortcuts    │  │
-│  └──────────┬───────────┘  └──────────┬───────────┘  └───────┬────────┘  │
-└─────────────┼─────────────────────────┼──────────────────────┼───────────┘
-              │                         │                      │
-              ▼                         ▼                      ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                     MunnaViewModel & Domain Layer                        │
-│                                                                          │
-│  ┌─────────────────────────────┐      ┌───────────────────────────────┐  │
-│  │     MunnaCommandParser      │      │       AppActionHandler        │  │
-│  │ • Hindi/Hinglish Normalizer │─────▶│ • Package Launch Intents      │  │
-│  │ • 12+ App & System Intents  │      │ • System Action Fallbacks     │  │
-│  │ • Custom App Name Extractor │      │ • Truthful Launch Verifier    │  │
-│  └─────────────────────────────┘      └───────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     Single Unified GitHub Repository                    │
+└───────────────────┬─────────────────────────────────┬───────────────────┘
+                    │                                 │
+       (1) Automatic Web Deploy          (2) Automatic Cloud APK Build
+                    │                                 │
+                    ▼                                 ▼
+┌───────────────────────────────────────┐ ┌───────────────────────────────┐
+│     Vercel (unique-public.vercel.app) │ │    GitHub Actions Workflow    │
+│ • Zero-Config Static Web Routing      │ │ • Sets up JDK & Android SDK   │
+│ • Live Munna AI Web Voice Assistant   │ │ • Runs Gradle assembleDebug   │
+│ • Web Speech API + Hindi TTS          │ │ • Publishes Munna-AI.apk to   │
+│ • Direct "Download Android APK" Card  │ │   Artifacts & GitHub Releases │
+└───────────────────────────────────────┘ └───────────────────────────────┘
 ```
 
 - **Interactive Component & State Mapping**:
-  - **One-Stop Permission Hub**: `permissionsSnapshot` (`RECORD_AUDIO`, `canDrawOverlays`, `isNotificationAccessGranted`, `ttsState.isReady`) को रीयल-टाइम में ट्रैक करता है और अधूरे स्टेप्स की संख्या दिखाता है।
-  - **Extended App & System Action Matcher**: जब यूज़र *"Camera kholo"*, *"Calculator kholo"*, *"Settings kholo"*, *"Call/Dialer kholo"*, या *"Maps kholo"* बोलता या लिखता है, तो पार्सर उसे पहचानकर संबंधित Android Intent चलाता है और `CommandHistory` में परिणाम दर्ज करता है।
-  - **Troubleshooting Actions**: TTS आवाज़ सेटिंग्स, ऐप बैटरी सेटिंग्स, और माइक अनुमतियों को एक क्लिक में खोलता है और किसी भी डिवाइस पर क्रैश से बचने के लिए सुरक्षित `try/catch` हैंडलिंग रखता है।
+  - **Web Voice & Command Engine**: ब्राउज़र में `webkitSpeechRecognition` / `SpeechRecognition` (`hi-IN`) और `speechSynthesis` का उपयोग करके YouTube, WhatsApp Web, Google, समय/तारीख, और चैट कमांड्स को तुरंत चलाता है, और यह स्पष्ट बताता है कि फ़ोन के इंस्टॉल्ड ऐप्स और फ़्लोटिंग माइक के लिए ऊपर दिए गए बटन से Native Android APK इंस्टॉल करें।
+  - **Vercel Routing Configuration**: सभी वेब रिक्वेस्ट्स को मुख्य वेब ऐप पर रूट करता है ताकि किसी भी लिंक पर `404: NOT_FOUND` न आए।
