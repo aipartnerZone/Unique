@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 class MunnaRepository(private val dao: MunnaDao) {
     val commandHistory: Flow<List<CommandHistoryEntity>> = dao.getAllCommandHistory()
     val chatMessages: Flow<List<ChatMessageEntity>> = dao.getAllChatMessages()
+    val userMemories: Flow<List<UserMemoryEntity>> = dao.getAllUserMemories()
 
     suspend fun logCommand(
         recognizedText: String,
@@ -46,5 +47,34 @@ class MunnaRepository(private val dao: MunnaDao) {
 
     suspend fun clearChatHistory() {
         dao.clearAllChatMessages()
+    }
+
+    suspend fun saveLearnedMemory(
+        category: String,
+        memoryKey: String,
+        memoryValue: String,
+        contactPhone: String = ""
+    ) {
+        dao.deleteMemoryByKey(memoryKey)
+        dao.insertUserMemory(
+            UserMemoryEntity(
+                category = category,
+                memoryKey = memoryKey,
+                memoryValue = memoryValue,
+                contactPhone = contactPhone
+            )
+        )
+    }
+
+    suspend fun getMemoriesSnapshot(): List<UserMemoryEntity> {
+        return dao.getUserMemoriesSnapshot()
+    }
+
+    suspend fun deleteMemory(id: Long) {
+        dao.deleteUserMemoryById(id)
+    }
+
+    suspend fun clearAllMemories() {
+        dao.clearAllUserMemories()
     }
 }

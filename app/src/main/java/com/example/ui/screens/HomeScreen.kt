@@ -112,11 +112,14 @@ private val sampleQuickCommands = listOf(
     "WhatsApp kholo.",
     "Chrome open karo.",
     "Meri files kholo.",
+    "Munna, PDF padho.",
+    "Munna, mujhse discuss karo.",
+    "Mere sath padhai karo.",
+    "112 par call karo.",
+    "Google Pay kholo.",
     "Munna, Camera kholo.",
     "Calculator kholo.",
-    "Phone settings kholo.",
-    "Munna, abhi kitne baje hain?",
-    "Munna, meri baat suno."
+    "Munna, abhi kitne baje hain?"
 )
 
 @Composable
@@ -138,6 +141,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToAgentStudy: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showTextInputBox by rememberSaveable { mutableStateOf(false) }
@@ -711,6 +715,58 @@ fun HomeScreen(
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
                                 )
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Agent, PDF Reader, Student Tutor, Discussion & Voice Call Card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 600.dp)
+                    .clickable { onNavigateToAgentStudy() }
+                    .testTag("home_agent_study_pdf_card"),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = MunnaCardNavy),
+                border = BorderStroke(1.5.dp, MunnaCyanGlow.copy(alpha = 0.65f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "${settings.agentMode.badgeEmoji} मुन्ना एजेंट, PDF रीडर और स्टूडेंट गुरु",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MunnaCyanSoft,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "📄 PDF पढ़कर सुनाए • 🎓 स्टूडेंट के साथ पढ़ाई • 🗣️ डिस्कशन • 📞 बोलकर कॉल • 🔒 पेमेंट ऐप लॉक",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MunnaTextWhite
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Button(
+                            onClick = onNavigateToAgentStudy,
+                            colors = ButtonDefaults.buttonColors(containerColor = MunnaSkyBlue),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            modifier = Modifier.testTag("open_agent_study_hub_button")
+                        ) {
+                            Text(
+                                text = "एजेंट खोलें",
+                                color = MunnaNavyDeep,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }

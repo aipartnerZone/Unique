@@ -13,8 +13,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Explicit Package Visibility Queries (No broad QUERY_ALL_PACKAGES used) -->
+    <!-- Direct Voice Calling Permission (Runtime requested, with Dialer fallback) -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- Explicit Package & Launcher Queries so Munna AI can open any installed non-payment app -->
     <queries>
+        <!-- Discover all launchable apps on the device (Payment apps are blocked in PaymentAppSecurityGuard) -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+
         <!-- Speech Recognition & TTS Services -->
         <intent>
             <action android:name="android.speech.RecognitionService" />
@@ -42,12 +51,15 @@
         <package android:name="com.instagram.android" />
         <package android:name="org.telegram.messenger" />
 
-        <!-- Standard System Actions (Camera, Dialer, Settings, Browser, Documents) -->
+        <!-- Standard System Actions (Camera, Dialer, Call, Settings, Browser, Documents) -->
         <intent>
             <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
         </intent>
         <intent>
             <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
         </intent>
         <intent>
             <action android:name="android.settings.SETTINGS" />

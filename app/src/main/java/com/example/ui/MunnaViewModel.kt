@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -13,14 +14,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.local.AppLanguage
 import com.example.data.local.ChatMessageEntity
 import com.example.data.local.CommandHistoryEntity
+import com.example.data.local.MunnaAgentMode
 import com.example.data.local.MunnaDatabase
 import com.example.data.local.MunnaPreferences
 import com.example.data.local.MunnaRepository
 import com.example.data.local.MunnaSettingsState
+import com.example.data.local.UserMemoryEntity
 import com.example.domain.action.AppActionHandler
+import com.example.domain.action.InstalledDeviceAppInfo
 import com.example.domain.parser.MunnaCommandParser
 import com.example.domain.parser.ParsedCommand
 import com.example.domain.parser.TargetApp
+import com.example.pdf.LoadedPdfDocumentState
+import com.example.pdf.MunnaPdfHelper
+import com.example.pdf.SampleStudyDocument
 import com.example.service.FloatingMicService
 import com.example.service.MunnaNotificationListenerService
 import com.example.service.ReadableNotificationItem
@@ -39,12 +46,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 enum class MunnaTab {
     HOME,
+    AGENT_STUDY,
     CHAT,
     HISTORY,
     SETTINGS
@@ -68,9 +77,11 @@ data class LastActionFeedback(
 
 data class DevicePermissionsSnapshot(
     val hasRecordAudioPermission: Boolean = false,
+    val hasCallPhonePermission: Boolean = false,
     val hasOverlayPermission: Boolean = false,
     val hasNotificationAccess: Boolean = false,
-    val appInstallStatus: Map<TargetApp, Boolean> = emptyMap()
+    val appInstallStatus: Map<TargetApp, Boolean> = emptyMap(),
+    val installedApps: List<InstalledDeviceAppInfo> = emptyList()
 )
 
 class MunnaViewModel(application: Application) : AndroidViewModel(application) {
@@ -85,7 +96,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
         onVoiceInputRecognized(recognizedText)
     }
 
-    // Lazy initialization of Gemini 3.8 Flash model via Firebase AI Logic (per skill requirement)
+    // Lazy initialization of Gemini 3.8 Flash model via Firebase AI Logic
     private val geminiModel by lazy {
         Firebase.ai.generativeModel(
             modelName = "gemini-3.8-flash",
@@ -95,12 +106,14 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
             systemInstruction = content {
                 text(
                     """
-                    आप 'Munna AI' (मुन्ना AI) हैं — भारतीय Android यूज़र्स के लिए एक दोस्ताना, समझदार, भरोसेमंद और सरल AI वॉयस असिस्टेंट।
+                    आप 'Munna AI' (मुन्ना AI) हैं — भारतीय Android यूज़र्स के लिए एक बेहद दोस्ताना, समझदार, भरोसेमंद पर्सनल AI एजेंट, डिस्कशन पार्टनर और स्टूडेंट टीचर (Study Buddy)।
                     आपकी टैगलाइन है: "Bolo, Munna Karega!"
-                    नियम:
-                    1. हमेशा सरल, आदरपूर्ण और दोस्ताना हिंदी (या यूज़र चाहे तो हिंग्लिश/English) में जवाब दें, जैसे एक अच्छा छोटा भाई या दोस्त बात करता है ("हाँ भाई", "बिल्कुल भाई", "नमस्ते भाई")।
-                    2. अपने उत्तर छोटे, स्पष्ट और काम के रखें (2 से 4 वाक्य), ताकि Text-to-Speech से सुनने में आसान हों।
-                    3. कभी भी झूठा दावा न करें कि आपने कोई फ़ोन सेटिंग बदल दी है या कोई ऐसा ऐप खोल दिया है जो आपके अधिकार में नहीं है।
+                    मुख्य नियम:
+                    1. हमेशा सरल, आदरपूर्ण और दोस्ताना हिंदी (या यूज़र चाहे तो हिंग्लिश/English) में बात करें, जैसे एक अपना दोस्त या बड़ा भाई बात करता है ("हाँ भाई", "बिल्कुल दोस्त", "चलो समझते हैं")।
+                    2. सुरक्षा नियम: आप फ़ोन के सभी सामान्य ऐप्स खोल सकते हैं, लेकिन किसी भी Payment, UPI या Banking ऐप (Google Pay, PhonePe, Paytm, BHIM आदि) को कभी नहीं खोलते।
+                    3. आप यूज़र के डेटा और पुरानी बातों से सीखते हैं (Personal Memory) और बातचीत में उसका ध्यान रखते हैं।
+                    4. जब यूज़र डिस्कस करने कहे ('Discussion Mode'), तो अपने विचार रखें और अंत में यूज़र से एक दिलचस्प सवाल भी पूछें ताकि चर्चा जारी रहे।
+                    5. जब यूज़र स्टूडेंट हो या पढ़ाई करने कहे ('Student Tutor Mode'), तो कठिन से कठिन विषय को रोज़मर्रा के आसान भारतीय उदाहरणों से समझाएँ और समझ जांचने के लिए छोटे सवाल पूछें।
                     """.trimIndent()
                 )
             }
@@ -110,7 +123,6 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentTab = MutableStateFlow(MunnaTab.HOME)
     val currentTab: StateFlow<MunnaTab> = _currentTab.asStateFlow()
 
-    // Controls whether the current voice listening session came from Home/FloatingMic vs Chat input
     private var voiceTargetMode: VoiceTargetMode = VoiceTargetMode.COMMAND_ASSISTANT
 
     val settings: StateFlow<MunnaSettingsState> = preferences.settings
@@ -126,12 +138,20 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     val chatMessages: StateFlow<List<ChatMessageEntity>> = repository.chatMessages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val userMemories: StateFlow<List<UserMemoryEntity>> = repository.userMemories
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _loadedPdfState = MutableStateFlow(LoadedPdfDocumentState())
+    val loadedPdfState: StateFlow<LoadedPdfDocumentState> = _loadedPdfState.asStateFlow()
+
+    private var currentSampleDoc: SampleStudyDocument? = null
+
     private val _lastActionFeedback = MutableStateFlow<LastActionFeedback?>(
         LastActionFeedback(
-            commandText = "नमस्ते भाई! मैं मुन्ना हूँ।",
-            categoryLabel = "तैयार (Ready)",
-            responseText = "माइक दबाकर बोलें: \"Munna, YouTube kholo\", \"WhatsApp kholo\", \"अभी कितने बजे हैं?\" या कोई भी सवाल पूछें!",
-            statusBadge = "मुन्ना तैयार है",
+            commandText = "नमस्ते भाई! मैं मुन्ना एजेंट हूँ।",
+            categoryLabel = "स्मार्ट एजेंट तैयार (Ready)",
+            responseText = "बोलकर कोई भी नॉन-पेमेंट ऐप खोलें, कॉल लगाएँ, PDF पढ़ें, या मेरे साथ दोस्ताना डिस्कशन और पढ़ाई करें!",
+            statusBadge = "मुन्ना एजेंट तैयार है",
             isSuccess = true
         )
     )
@@ -148,19 +168,33 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         refreshPermissionsAndAppStatus()
-        seedInitialWelcomeChatIfNeeded()
+        seedInitialDataIfNeeded()
+        // Load default sample study note so PDF reader is immediately ready to test
+        loadSampleStudyDocument(MunnaPdfHelper.sampleStudyDocuments.first(), speakIntro = false)
     }
 
-    private fun seedInitialWelcomeChatIfNeeded() {
+    private fun seedInitialDataIfNeeded() {
         viewModelScope.launch {
-            repository.chatMessages.collect { messages ->
-                if (messages.isEmpty()) {
-                    repository.addChatMessage(
-                        sender = "MUNNA",
-                        messageText = "नमस्ते भाई! 👋 मैं मुन्ना AI हूँ — आपका अपना AI दोस्त।\n\nआप मुझसे हिंदी या हिंग्लिश में कोई भी सवाल पूछ सकते हैं (जैसे पढ़ाई, काम, सामान्य ज्ञान, या रोज़मर्रा की मदद)!"
-                    )
-                }
-                return@collect
+            val existingMessages = repository.chatMessages.first()
+            if (existingMessages.isEmpty()) {
+                repository.addChatMessage(
+                    sender = "MUNNA",
+                    messageText = "नमस्ते भाई! 👋 मैं मुन्ना AI हूँ — आपका पर्सनल एजेंट, डिस्कशन पार्टनर और पढ़ाई का साथी।\n\n• बोलकर कोई भी ऐप खोलें (🔒 Payment Apps सुरक्षित रूप से ब्लॉक हैं)\n• बोलकर कॉल लगाएँ (\"9876543210 पर कॉल करो\")\n• PDF फ़ाइल अपलोड करके मुझसे पढ़वाएँ और समझें\n• बोलें: \"मुझसे डिस्कस करो\" या \"मेरे साथ पढ़ाई करो\"!"
+                )
+            }
+            val existingMemories = repository.getMemoriesSnapshot()
+            if (existingMemories.isEmpty()) {
+                repository.saveLearnedMemory(
+                    category = "सुरक्षा नियम (Security)",
+                    memoryKey = "payment_lock_rule",
+                    memoryValue = "पेमेंट और बैंकिंग ऐप्स (GPay, PhonePe, Paytm, BHIM) हमेशा लॉक हैं"
+                )
+                repository.saveLearnedMemory(
+                    category = "कॉल संपर्क (Contact)",
+                    memoryKey = "contact_emergency",
+                    memoryValue = "आपातकालीन सहायता हेल्पलाइन: 112",
+                    contactPhone = "112"
+                )
             }
         }
     }
@@ -175,18 +209,26 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
             Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED
 
+        val hasCall = ContextCompat.checkSelfPermission(
+            appContext,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+
         val hasOverlay = Settings.canDrawOverlays(appContext)
         val hasNotif = MunnaNotificationListenerService.isNotificationAccessGranted(appContext)
 
         val installMap = TargetApp.entries.associateWith { app ->
             actionHandler.isAppAvailable(app)
         }
+        val installedList = actionHandler.getInstalledLaunchableApps()
 
         return DevicePermissionsSnapshot(
             hasRecordAudioPermission = hasMic,
+            hasCallPhonePermission = hasCall,
             hasOverlayPermission = hasOverlay,
             hasNotificationAccess = hasNotif,
-            appInstallStatus = installMap
+            appInstallStatus = installMap,
+            installedApps = installedList
         )
     }
 
@@ -195,8 +237,192 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
         refreshPermissionsAndAppStatus()
     }
 
+    fun setAgentMode(mode: MunnaAgentMode, speakConfirmation: Boolean = true) {
+        preferences.setAgentMode(mode)
+        if (speakConfirmation) {
+            val msg = when (mode) {
+                MunnaAgentMode.SMART_AGENT -> "भाई, अब मैं स्मार्ट एजेंट मोड में हूँ। बताओ कौन सा ऐप खोलना है या किसे कॉल लगाना है?"
+                MunnaAgentMode.DISCUSSION_PARTNER -> "भाई, लाइव डिस्कशन मोड चालू हो गया है! बताओ आज किस मुद्दे या विचार पर चर्चा करें?"
+                MunnaAgentMode.STUDENT_TUTOR -> "भाई, स्टूडेंट पढ़ाई मोड चालू है! बताओ आज कौन-सा विषय या PDF चैप्टर आसान भाषा में समझना है?"
+            }
+            speakTextAloud(msg)
+        }
+    }
+
     fun updateChatDraft(text: String) {
         _chatDraftInput.value = text
+    }
+
+    fun addPersonalMemoryFact(category: String, factText: String, contactPhone: String = "") {
+        val cleanFact = factText.trim()
+        if (cleanFact.isBlank()) return
+        viewModelScope.launch {
+            val key = if (contactPhone.isNotBlank()) {
+                "contact_${cleanFact.lowercase().take(18)}"
+            } else {
+                "custom_${cleanFact.lowercase().take(20).hashCode()}"
+            }
+            repository.saveLearnedMemory(
+                category = category,
+                memoryKey = key,
+                memoryValue = if (contactPhone.isNotBlank()) "$cleanFact ($contactPhone)" else cleanFact,
+                contactPhone = contactPhone.trim()
+            )
+        }
+    }
+
+    fun deletePersonalMemory(id: Long) {
+        viewModelScope.launch {
+            repository.deleteMemory(id)
+        }
+    }
+
+    /**
+     * Loads a real PDF document from Android's Document Picker URI and renders page 0.
+     */
+    fun loadPdfFromUri(uri: Uri) {
+        viewModelScope.launch {
+            currentSampleDoc = null
+            val fileName = MunnaPdfHelper.resolveFileName(appContext, uri)
+            _loadedPdfState.value = LoadedPdfDocumentState(
+                uriString = uri.toString(),
+                fileName = fileName,
+                currentPageIndex = 0,
+                totalPages = 1,
+                isSampleDocument = false,
+                isAnalyzingWithAi = true,
+                extractedOrAnalyzedText = "PDF पेज लोड हो रहा है और मुन्ना इसे पढ़ रहा है…"
+            )
+
+            val (bitmap, pageCount) = MunnaPdfHelper.renderPdfPageBitmap(appContext, uri, 0)
+            if (bitmap != null && pageCount > 0) {
+                _loadedPdfState.value = _loadedPdfState.value.copy(
+                    currentPageBitmap = bitmap,
+                    totalPages = pageCount,
+                    currentPageIndex = 0
+                )
+                analyzeCurrentPdfPageWithAi(promptAction = "READ_AND_EXPLAIN")
+            } else {
+                val err = "माफ़ करना भाई, यह PDF फ़ाइल खुल नहीं सकी। कृपया कोई दूसरी PDF फ़ाइल चुनें।"
+                _loadedPdfState.value = _loadedPdfState.value.copy(
+                    isAnalyzingWithAi = false,
+                    extractedOrAnalyzedText = err
+                )
+                speakTextAloud(err)
+            }
+        }
+    }
+
+    fun selectPdfPage(newPageIndex: Int) {
+        val current = _loadedPdfState.value
+        if (current.totalPages <= 0) return
+        val targetIndex = newPageIndex.coerceIn(0, current.totalPages - 1)
+        if (targetIndex == current.currentPageIndex && !current.isAnalyzingWithAi) return
+
+        viewModelScope.launch {
+            if (current.isSampleDocument) {
+                val sample = currentSampleDoc ?: return@launch
+                val pageText = sample.contentPages.getOrElse(targetIndex) { sample.contentPages.first() }
+                _loadedPdfState.value = current.copy(
+                    currentPageIndex = targetIndex,
+                    extractedOrAnalyzedText = pageText
+                )
+                speakTextAloud(pageText)
+            } else if (current.uriString.isNotBlank()) {
+                val uri = Uri.parse(current.uriString)
+                _loadedPdfState.value = current.copy(
+                    currentPageIndex = targetIndex,
+                    isAnalyzingWithAi = true,
+                    extractedOrAnalyzedText = "पेज ${targetIndex + 1} पढ़ा जा रहा है…"
+                )
+                val (bitmap, total) = MunnaPdfHelper.renderPdfPageBitmap(appContext, uri, targetIndex)
+                _loadedPdfState.value = _loadedPdfState.value.copy(
+                    currentPageBitmap = bitmap,
+                    totalPages = total.coerceAtLeast(1)
+                )
+                if (bitmap != null) {
+                    analyzeCurrentPdfPageWithAi(promptAction = "READ_AND_EXPLAIN")
+                }
+            }
+        }
+    }
+
+    fun loadSampleStudyDocument(doc: SampleStudyDocument, speakIntro: Boolean = true) {
+        currentSampleDoc = doc
+        val firstPage = doc.contentPages.firstOrNull().orEmpty()
+        _loadedPdfState.value = LoadedPdfDocumentState(
+            uriString = "",
+            fileName = "${doc.title}.pdf",
+            currentPageIndex = 0,
+            totalPages = doc.contentPages.size,
+            currentPageBitmap = null,
+            extractedOrAnalyzedText = firstPage,
+            isSampleDocument = true,
+            isAnalyzingWithAi = false
+        )
+        if (speakIntro) {
+            speakTextAloud("भाई, मैंने '${doc.title}' के नोट्स खोल दिए हैं। $firstPage")
+        }
+    }
+
+    /**
+     * Uses Gemini Multimodal (`gemini-3.8-flash`) to read, explain, quiz, or discuss the active PDF page.
+     */
+    fun analyzeCurrentPdfPageWithAi(promptAction: String) {
+        val current = _loadedPdfState.value
+        viewModelScope.launch {
+            _loadedPdfState.value = current.copy(isAnalyzingWithAi = true)
+            val instruction = when (promptAction) {
+                "READ_ONLY" -> "इस पेज पर जो लिखा है उसे साफ़ और सरल हिंदी में पढ़कर सुनाएँ ताकि यूज़र सुनकर समझ सके।"
+                "QUIZ_ME" -> "एक अच्छे शिक्षक (Student Tutor) की तरह इस पेज के आधार पर छात्र से 3 महत्वपूर्ण सवाल पूछें और उनके संक्षिप्त उत्तर भी नीचे बताएँ।"
+                "DISCUSS_PDF" -> "एक दोस्ताना डिस्कशन पार्टनर की तरह इस पेज के मुख्य विचार पर चर्चा शुरू करें और यूज़र से उसकी राय पूछें।"
+                else -> "इस PDF पेज को ध्यान से पढ़ें। पहले मुख्य बातें सरल हिंदी में बताएँ और फिर एक बड़े भाई/टीचर की तरह आसान उदाहरण देकर समझाएँ।"
+            }
+
+            try {
+                val bitmap = current.currentPageBitmap
+                val response = withTimeout(60_000L) {
+                    if (bitmap != null && !current.isSampleDocument) {
+                        geminiModel.generateContent(
+                            content {
+                                image(bitmap)
+                                text("फ़ाइल: ${current.fileName}, पेज ${current.currentPageIndex + 1}/${current.totalPages}.\nनिर्देश: $instruction")
+                            }
+                        )
+                    } else {
+                        val baseText = current.extractedOrAnalyzedText
+                        geminiModel.generateContent(
+                            "नोट्स सामग्री:\n$baseText\n\nनिर्देश: $instruction"
+                        )
+                    }
+                }
+
+                val output = response.text?.trim().orEmpty()
+                if (output.isNotBlank()) {
+                    _loadedPdfState.value = _loadedPdfState.value.copy(
+                        isAnalyzingWithAi = false,
+                        extractedOrAnalyzedText = output
+                    )
+                    repository.addChatMessage("MUNNA", "📄 [${current.fileName} - पेज ${current.currentPageIndex + 1}]:\n$output")
+                    speakTextAloud(output.replace("*", "").take(320))
+                } else {
+                    _loadedPdfState.value = _loadedPdfState.value.copy(isAnalyzingWithAi = false)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "PDF AI analysis failed", e)
+                val fallbackMsg = if (current.isSampleDocument) {
+                    current.extractedOrAnalyzedText
+                } else {
+                    "माफ़ करना भाई, अभी AI से PDF पेज का विश्लेषण करने में नेटवर्क समस्या आई: ${e.localizedMessage ?: "Network Error"}"
+                }
+                _loadedPdfState.value = _loadedPdfState.value.copy(
+                    isAnalyzingWithAi = false,
+                    extractedOrAnalyzedText = fallbackMsg
+                )
+            }
+        }
     }
 
     /**
@@ -248,8 +474,59 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Processes a voice or text command using local command matching first (Requirement 4),
-     * and falls back to Gemini AI conversation handler only for general questions.
+     * Automatically learns from user statements and builds a personalized context string
+     * from Room (`user_memories` + `command_history`) so Munna acts as an intelligent learning agent.
+     */
+    private suspend fun learnAndBuildAgentContext(latestInput: String): String {
+        val currentSettings = settings.value
+        if (currentSettings.agentLearningEnabled) {
+            MunnaCommandParser.extractLearnedMemoryIfAny(latestInput)?.let { learned ->
+                repository.saveLearnedMemory(
+                    category = learned.category,
+                    memoryKey = learned.memoryKey,
+                    memoryValue = learned.memoryValue,
+                    contactPhone = learned.contactPhone
+                )
+            }
+        }
+
+        val memories = repository.getMemoriesSnapshot()
+        val recentCmds = commandHistory.value.take(5)
+        val mode = currentSettings.agentMode
+
+        val modeDirective = when (mode) {
+            MunnaAgentMode.SMART_AGENT ->
+                "आप अभी 'स्मार्ट पर्सनल एजेंट' मोड में हैं। दोस्त की तरह मददगार जवाब दें और यूज़र की पसंद का ध्यान रखें।"
+            MunnaAgentMode.DISCUSSION_PARTNER ->
+                "आप अभी 'लाइव डिस्कशन पार्टनर' (Discussion Mode) में हैं। यूज़र के साथ दोस्त की तरह विचार-विमर्श करें, दोनों पहलू बताएँ और अंत में यूज़र से एक रोचक सवाल ज़रूर पूछें ताकि चर्चा आगे बढ़े।"
+            MunnaAgentMode.STUDENT_TUTOR ->
+                "आप अभी 'स्टूडेंट गुरु / टीचर' (Student Study Mode) में हैं। छात्र को बड़े भाई की तरह बहुत आसान भाषा और उदाहरण देकर समझाएँ, और अंत में उसकी समझ जांचने के लिए 1 छोटा सवाल पूछें।"
+        }
+
+        val memoryLines = if (memories.isNotEmpty()) {
+            memories.take(10).joinToString("\n") { "- [${it.category}] ${it.memoryValue}" }
+        } else {
+            "- अभी कोई विशेष व्यक्तिगत जानकारी सेव नहीं है।"
+        }
+
+        val usageLines = if (recentCmds.isNotEmpty()) {
+            recentCmds.joinToString(", ") { it.recognizedText }
+        } else {
+            "कोई हालिया कमांड नहीं"
+        }
+
+        return """
+            सक्रिय मोड निर्देश: $modeDirective
+            यूज़र के डेटा से सीखी गई यादें (Learned User Memory):
+            $memoryLines
+            यूज़र के हालिया कमांड/आदतें: $usageLines
+        """.trimIndent()
+    }
+
+    /**
+     * Processes a voice or text command using local command matching first,
+     * enforcing PaymentAppSecurityGuard, supporting voice calling, PDF reading,
+     * mode switching, and falling back to the memory-aware Gemini AI Agent.
      */
     fun processVoiceOrTextCommand(rawCommand: String) {
         val trimmed = rawCommand.trim()
@@ -258,9 +535,38 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             voiceManager.setProcessingState(trimmed)
             val currentSettings = settings.value
+
+            // Auto-learn any personal fact / contact number mentioned in the command
+            if (currentSettings.agentLearningEnabled) {
+                MunnaCommandParser.extractLearnedMemoryIfAny(trimmed)?.let { learned ->
+                    repository.saveLearnedMemory(
+                        category = learned.category,
+                        memoryKey = learned.memoryKey,
+                        memoryValue = learned.memoryValue,
+                        contactPhone = learned.contactPhone
+                    )
+                }
+            }
+
             val parsed = MunnaCommandParser.parse(trimmed)
 
             when (parsed) {
+                is ParsedCommand.BlockedPaymentApp -> {
+                    val execResult = actionHandler.buildBlockedPaymentAppResult(
+                        blockedAppName = parsed.blockedAppName,
+                        language = currentSettings.language
+                    )
+                    completeLocalCommand(
+                        rawText = trimmed,
+                        normalizedText = parsed.normalizedText,
+                        category = parsed.categoryLabel,
+                        spokenResponse = execResult.spokenResponse,
+                        detailText = execResult.detailMessage,
+                        statusBadge = execResult.statusSummary,
+                        isSuccess = false
+                    )
+                }
+
                 is ParsedCommand.OpenApp -> {
                     val execResult = actionHandler.launchTargetApp(parsed.targetApp, currentSettings.language)
                     completeLocalCommand(
@@ -285,6 +591,67 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
                         statusBadge = execResult.statusSummary,
                         isSuccess = execResult.isSuccess
                     )
+                }
+
+                is ParsedCommand.MakePhoneCall -> {
+                    val memories = repository.getMemoriesSnapshot()
+                    val execResult = actionHandler.placeVoiceCall(
+                        targetNameOrNumber = parsed.targetNameOrNumber,
+                        extractedDigits = parsed.extractedDigits,
+                        savedMemories = memories,
+                        language = currentSettings.language
+                    )
+                    completeLocalCommand(
+                        rawText = trimmed,
+                        normalizedText = parsed.normalizedText,
+                        category = parsed.categoryLabel,
+                        spokenResponse = execResult.spokenResponse,
+                        detailText = execResult.detailMessage,
+                        statusBadge = execResult.statusSummary,
+                        isSuccess = execResult.isSuccess
+                    )
+                }
+
+                is ParsedCommand.OpenPdfReader -> {
+                    _currentTab.value = MunnaTab.AGENT_STUDY
+                    val msg = "ठीक है भाई, मैंने PDF रीडर और स्टूडेंट स्टडी सेंटर खोल दिया है। यहाँ आप कोई भी PDF चुनकर मुझसे सुन और समझ सकते हैं!"
+                    completeLocalCommand(
+                        rawText = trimmed,
+                        normalizedText = parsed.normalizedText,
+                        category = parsed.categoryLabel,
+                        spokenResponse = msg,
+                        detailText = msg,
+                        statusBadge = "📄 PDF रीडर खोला गया",
+                        isSuccess = true
+                    )
+                }
+
+                is ParsedCommand.SwitchAgentMode -> {
+                    preferences.setAgentMode(parsed.targetMode)
+                    if (parsed.initialTopic.length >= 2) {
+                        handleGeneralAiCommand(
+                            rawText = trimmed,
+                            parsed = ParsedCommand.AskAiQuestion(trimmed, parsed.normalizedText, trimmed)
+                        )
+                    } else {
+                        val msg = when (parsed.targetMode) {
+                            MunnaAgentMode.DISCUSSION_PARTNER ->
+                                "बिल्कुल भाई! चलो दोस्त की तरह डिस्कस करते हैं। बताओ आज किस टॉपिक पर बात करें — करियर, टेक्नोलॉजी, पढ़ाई या कोई और मुद्दा?"
+                            MunnaAgentMode.STUDENT_TUTOR ->
+                                "शाबाश भाई! स्टूडेंट पढ़ाई मोड चालू हो गया है। बताओ आज कौन-सा सब्जेक्ट या टॉपिक पढ़ना है? मैं तुम्हें आसान उदाहरणों के साथ सिखाऊँगा!"
+                            MunnaAgentMode.SMART_AGENT ->
+                                "हाँ भाई, मैं स्मार्ट एजेंट मोड में तैयार हूँ!"
+                        }
+                        completeLocalCommand(
+                            rawText = trimmed,
+                            normalizedText = parsed.normalizedText,
+                            category = parsed.categoryLabel,
+                            spokenResponse = msg,
+                            detailText = msg,
+                            statusBadge = "${parsed.targetMode.badgeEmoji} ${parsed.targetMode.titleHindi}",
+                            isSuccess = true
+                        )
+                    }
                 }
 
                 is ParsedCommand.TellTime -> {
@@ -351,8 +718,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun launchShortcutApp(app: TargetApp) {
-        val sampleCmd = app.sampleCommand
-        processVoiceOrTextCommand(sampleCmd)
+        processVoiceOrTextCommand(app.sampleCommand)
     }
 
     private suspend fun handleReadNotificationsCommand(
@@ -409,29 +775,36 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         val currentSettings = settings.value
         try {
+            val agentContext = learnAndBuildAgentContext(rawText)
             val langInstruction = when (currentSettings.language) {
-                AppLanguage.HINDI -> "सरल हिंदी (देवनागरी) में अधिकतम 2-3 वाक्यों में जवाब दें।"
-                AppLanguage.HINGLISH -> "सरल Hinglish (Roman script) में अधिकतम 2-3 वाक्यों में जवाब दें।"
-                AppLanguage.ENGLISH -> "Respond in simple, friendly Indian English in 2-3 short sentences."
+                AppLanguage.HINDI -> "सरल, दोस्ताना हिंदी (देवनागरी) में 2 से 4 वाक्यों में जवाब दें।"
+                AppLanguage.HINGLISH -> "सरल, दोस्ताना Hinglish (Roman script) में 2 से 4 वाक्यों में जवाब दें।"
+                AppLanguage.ENGLISH -> "Respond in simple, friendly Indian English in 2-4 sentences."
             }
 
             val response = withTimeout(60_000L) {
-                geminiModel.generateContent("यूज़र ने कहा: \"$rawText\"\nनिर्देश: $langInstruction")
+                geminiModel.generateContent(
+                    """
+                    $agentContext
+                    
+                    यूज़र ने कहा: "$rawText"
+                    निर्देश: $langInstruction
+                    """.trimIndent()
+                )
             }
 
             val answerText = response.text?.trim().orEmpty()
             if (answerText.isNotBlank()) {
-                // Also record in AI chat history so user can continue the conversation
                 repository.addChatMessage("USER", rawText)
                 repository.addChatMessage("MUNNA", answerText)
 
                 completeLocalCommand(
                     rawText = rawText,
                     normalizedText = parsed.normalizedText,
-                    category = parsed.categoryLabel,
-                    spokenResponse = answerText,
+                    category = "${currentSettings.agentMode.badgeEmoji} ${currentSettings.agentMode.titleHindi}",
+                    spokenResponse = answerText.replace("*", ""),
                     detailText = answerText,
-                    statusBadge = "मुन्ना AI ने जवाब दिया",
+                    statusBadge = "मुन्ना एजेंट ने जवाब दिया",
                     isSuccess = true
                 )
             } else {
@@ -453,7 +826,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "AI command generation failed", e)
-            val errMsg = "माफ़ करना भाई, अभी AI सेवा से जुड़ने में समस्या आई (${e.localizedMessage ?: "Network Error"})। ऐप खोलने या समय पूछने जैसे कमांड बिना इंटरनेट के भी काम करेंगे!"
+            val errMsg = "माफ़ करना भाई, अभी AI सेवा से जुड़ने में समस्या आई (${e.localizedMessage ?: "Network Error"})। ऐप खोलने, कॉल लगाने या समय पूछने जैसे कमांड बिना इंटरनेट के भी काम करेंगे!"
             completeLocalCommand(
                 rawText = rawText,
                 normalizedText = parsed.normalizedText,
@@ -509,7 +882,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Sends a message in the dedicated AI Chat screen using streaming (`generateContentStream`)
-     * with a realistic 60s coroutine timeout and cooperative CancellationException preservation.
+     * enriched with Munna's learned Personal Memory and active Agent Mode (Agent / Discussion / Student Tutor).
      */
     fun sendChatMessage(userMessage: String = _chatDraftInput.value) {
         val cleanMsg = userMessage.trim()
@@ -527,6 +900,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
             _aiChatState.value = AiChatGenerationState.Loading
 
             val currentSettings = settings.value
+            val agentContext = learnAndBuildAgentContext(cleanMsg)
             val langHint = when (currentSettings.language) {
                 AppLanguage.HINDI -> "कृपया सरल और दोस्ताना हिंदी में जवाब दें।"
                 AppLanguage.HINGLISH -> "कृपया दोस्ताना Hinglish में जवाब दें।"
@@ -536,7 +910,13 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
             val accumulated = StringBuilder()
             try {
                 withTimeout(60_000L) {
-                    geminiModel.generateContentStream("$cleanMsg\n($langHint)").collect { chunk ->
+                    val fullPrompt = """
+                        $agentContext
+                        
+                        यूज़र का संदेश: $cleanMsg
+                        ($langHint)
+                    """.trimIndent()
+                    geminiModel.generateContentStream(fullPrompt).collect { chunk ->
                         val chunkText = chunk.text.orEmpty()
                         accumulated.append(chunkText)
                         _aiChatState.value = AiChatGenerationState.Streaming(accumulated.toString())
@@ -549,8 +929,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
                     _aiChatState.value = AiChatGenerationState.Idle
 
                     if (currentSettings.spokenResponsesEnabled) {
-                        // Speak a concise portion so long responses don't overwhelm TTS
-                        val ttsSnippet = finalReply.replace("*", "").take(260)
+                        val ttsSnippet = finalReply.replace("*", "").take(280)
                         ttsManager.speak(
                             text = ttsSnippet,
                             enabled = true,
@@ -569,7 +948,6 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
                 repository.addChatMessage(sender = "MUNNA", messageText = timeoutMsg, isError = true)
                 _aiChatState.value = AiChatGenerationState.Error(timeoutMsg)
             } catch (e: CancellationException) {
-                // Always re-throw CancellationException per coroutine & Firebase AI Logic guidelines
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Firebase AI chat generation failed", e)
@@ -609,7 +987,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
     fun clearChatHistory() {
         viewModelScope.launch {
             repository.clearChatHistory()
-            seedInitialWelcomeChatIfNeeded()
+            seedInitialDataIfNeeded()
         }
     }
 
@@ -617,7 +995,7 @@ class MunnaViewModel(application: Application) : AndroidViewModel(application) {
         refreshPermissionsAndAppStatus()
         if (enable) {
             if (!Settings.canDrawOverlays(appContext)) {
-                return false // Caller should prompt user to grant overlay permission
+                return false
             }
             val serviceIntent = Intent(appContext, FloatingMicService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

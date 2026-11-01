@@ -19,10 +19,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -56,12 +58,12 @@ import com.example.service.FloatingMicService
 import com.example.ui.MunnaTab
 import com.example.ui.MunnaViewModel
 import com.example.ui.components.DraggableFloatingMicOverlay
+import com.example.ui.screens.AgentStudyScreen
 import com.example.ui.screens.ChatScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.theme.MunnaAITheme
-import com.example.ui.theme.MunnaCardElevated
 import com.example.ui.theme.MunnaCardNavy
 import com.example.ui.theme.MunnaNavyDeep
 import com.example.ui.theme.MunnaSkyBlue
@@ -117,6 +119,13 @@ private val navItems = listOf(
         testTag = "nav_tab_home"
     ),
     NavTabItem(
+        tab = MunnaTab.AGENT_STUDY,
+        label = "एजेंट & PDF",
+        selectedIcon = Icons.Filled.School,
+        unselectedIcon = Icons.Outlined.School,
+        testTag = "nav_tab_agent_study"
+    ),
+    NavTabItem(
         tab = MunnaTab.CHAT,
         label = "AI चैट",
         selectedIcon = Icons.Filled.ChatBubble,
@@ -157,6 +166,8 @@ fun MunnaAppRoot(
     val chatDraft by viewModel.chatDraftInput.collectAsStateWithLifecycle()
     val isOverlayServiceRunning by viewModel.isOverlayServiceRunning.collectAsStateWithLifecycle()
     val recentNotifications by viewModel.recentNotifications.collectAsStateWithLifecycle()
+    val loadedPdfState by viewModel.loadedPdfState.collectAsStateWithLifecycle()
+    val userMemories by viewModel.userMemories.collectAsStateWithLifecycle()
 
     var pendingForChatInput by remember { mutableStateOf(false) }
 
@@ -164,6 +175,12 @@ fun MunnaAppRoot(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         viewModel.onMicPermissionResult(isGranted, forChatInput = pendingForChatInput)
+    }
+
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        viewModel.refreshPermissionsAndAppStatus()
     }
 
     // Refresh permissions when returning from Android Settings (Overlay / Notification Access)
@@ -302,7 +319,38 @@ fun MunnaAppRoot(
                                 onStopSpeaking = { viewModel.stopSpeaking() },
                                 onNavigateToSettings = { viewModel.selectTab(MunnaTab.SETTINGS) },
                                 onNavigateToHistory = { viewModel.selectTab(MunnaTab.HISTORY) },
-                                onNavigateToChat = { viewModel.selectTab(MunnaTab.CHAT) }
+                                onNavigateToChat = { viewModel.selectTab(MunnaTab.CHAT) },
+                                onNavigateToAgentStudy = { viewModel.selectTab(MunnaTab.AGENT_STUDY) }
+                            )
+
+                            MunnaTab.AGENT_STUDY -> AgentStudyScreen(
+                                settings = settings,
+                                permissions = permissions,
+                                ttsState = ttsState,
+                                loadedPdf = loadedPdfState,
+                                userMemories = userMemories,
+                                onSelectAgentMode = { mode -> viewModel.setAgentMode(mode) },
+                                onOpenPdfUri = { uri -> viewModel.loadPdfFromUri(uri) },
+                                onSelectPdfPage = { pageIdx -> viewModel.selectPdfPage(pageIdx) },
+                                onLoadSampleStudyDoc = { doc -> viewModel.loadSampleStudyDocument(doc) },
+                                onAnalyzePdfWithAi = { action -> viewModel.analyzeCurrentPdfPageWithAi(action) },
+                                onExecuteCommand = { cmd -> viewModel.processVoiceOrTextCommand(cmd) },
+                                onStartStudyOrDiscussionInChat = { mode, prompt ->
+                                    viewModel.setAgentMode(mode, speakConfirmation = false)
+                                    viewModel.selectTab(MunnaTab.CHAT)
+                                    viewModel.sendChatMessage(prompt)
+                                },
+                                onAddMemoryFact = { cat, fact, phone ->
+                                    viewModel.addPersonalMemoryFact(cat, fact, phone)
+                                },
+                                onDeleteMemoryFact = { id -> viewModel.deletePersonalMemory(id) },
+                                onRequestCallPermission = {
+                                    callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                                },
+                                onSpeakText = { text -> viewModel.speakTextAloud(text) },
+                                onStopSpeaking = { viewModel.stopSpeaking() },
+                                onMicClick = { handleMicTap(false) },
+                                onBackToHome = { viewModel.selectTab(MunnaTab.HOME) }
                             )
 
                             MunnaTab.CHAT -> ChatScreen(
@@ -362,7 +410,7 @@ fun MunnaAppRoot(
                     }
                 }
 
-                // Floating Microphone near the right edge of the screen (Requirement 6)
+                // Floating Microphone near the right edge of the screen
                 if (settings.inAppFloatingMicEnabled) {
                     DraggableFloatingMicOverlay(
                         status = voiceState.status,

@@ -740,7 +740,29 @@
       let status = 'काम पूरा हुआ!';
       let ok = true;
 
-      if (lower.includes('youtube') || lower.includes('यूट्यूब')) {
+      const paymentKeywords = ['google pay', 'gpay', 'phonepe', 'phone pe', 'paytm', 'bhim', 'upi', 'cred', 'mobikwik', 'netbanking', 'पेटीएम', 'फोनपे', 'गूगल पे', 'भीम'];
+      if (paymentKeywords.some(k => lower.includes(k))) {
+        ok = false;
+        status = '🔒 पेमेंट ऐप सुरक्षा लॉक';
+        response = 'सुरक्षा नियम: भाई, आपके पैसों और बैंक खाते की सुरक्षा के लिए मैं कोई भी पेमेंट या बैंकिंग ऐप (Google Pay, PhonePe, Paytm, BHIM) नहीं खोलता हूँ।';
+      } else if (lower.includes('call') || lower.includes('कॉल') || lower.includes('फोन लगाओ') || lower.includes('फ़ोन लगाओ')) {
+        const digits = rawCmd.replace(/[^\d+]/g, '');
+        if (digits.length >= 3) {
+          response = 'ठीक है भाई, ' + digits + ' पर कॉल डायलर खोल रहा हूँ।';
+          window.location.href = 'tel:' + digits;
+        } else {
+          response = 'भाई, कॉल लगाने के लिए नंबर बोलें (जैसे: "9876543210 पर कॉल करो") या Android APK इंस्टॉल करें!';
+        }
+      } else if (lower.includes('pdf') || lower.includes('पीडीएफ')) {
+        status = '📄 PDF रीडर और नोट्स गुरु';
+        response = 'भाई, मुन्ना Android APK में पूरा PDF रीडर मौजूद है जो किसी भी PDF को बोलकर सुनाता है, आसान हिंदी में समझाता है और सवाल पूछता है!';
+      } else if (lower.includes('discuss') || lower.includes('डिस्कस') || lower.includes('चर्चा')) {
+        status = '🗣️ लाइव डिस्कशन मोड';
+        response = 'बिल्कुल भाई! चलो दोस्त की तरह डिस्कस करते हैं। बताओ आज किस मुद्दे पर बात करें — AI, करियर, पढ़ाई या टेक्नोलॉजी?';
+      } else if (lower.includes('padhai') || lower.includes('padhao') || lower.includes('student') || lower.includes('पढ़ाई') || lower.includes('पढ़ाओ')) {
+        status = '🎓 स्टूडेंट पढ़ाई मोड';
+        response = 'शाबाश भाई! मैं तुम्हारे बड़े भाई और टीचर की तरह साथ में पढ़ाई करूँगा। बताओ आज कौन-सा सब्जेक्ट या चैप्टर आसान उदाहरण से समझना है?';
+      } else if (lower.includes('youtube') || lower.includes('यूट्यूब')) {
         response = 'ठीक है भाई, YouTube खोल रहा हूँ।';
         window.open('https://m.youtube.com', '_blank', 'noopener');
       } else if (lower.includes('whatsapp') || lower.includes('व्हाट्सएप')) {
@@ -760,7 +782,7 @@
         const today = new Date().toLocaleDateString('hi-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         response = 'भाई, आज ' + today + ' है।';
       } else {
-        response = 'हाँ भाई, मैं मुन्ना ध्यान से सुन रहा हूँ! बताओ, कौन सा ऐप खोलना है या क्या मदद करनी है?';
+        response = 'हाँ भाई, मैं मुन्ना एजेंट ध्यान से सुन रहा हूँ! मैं कोई भी नॉन-पेमेंट ऐप खोल सकता हूँ, कॉल लगा सकता हूँ, PDF पढ़ सकता हूँ और आपके साथ पढ़ाई व डिस्कशन कर सकता हूँ!';
       }
 
       document.getElementById('lastCommandLabel').textContent = 'कमांड: "' + rawCmd + '"';

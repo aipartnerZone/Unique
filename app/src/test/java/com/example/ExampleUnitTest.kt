@@ -1,9 +1,11 @@
 package com.example
 
+import com.example.data.local.MunnaAgentMode
 import com.example.domain.parser.MunnaCommandParser
 import com.example.domain.parser.ParsedCommand
 import com.example.domain.parser.TargetApp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -33,6 +35,50 @@ class ExampleUnitTest {
         val files = MunnaCommandParser.parse("Meri files kholo.")
         assertTrue(files is ParsedCommand.OpenApp)
         assertEquals(TargetApp.FILES, (files as ParsedCommand.OpenApp).targetApp)
+    }
+
+    @Test
+    fun parse_paymentApps_areStrictlyBlockedForSecurity() {
+        val gpay = MunnaCommandParser.parse("Munna, Google Pay kholo")
+        assertTrue(gpay is ParsedCommand.BlockedPaymentApp)
+
+        val phonepe = MunnaCommandParser.parse("PhonePe open karo")
+        assertTrue(phonepe is ParsedCommand.BlockedPaymentApp)
+
+        val paytm = MunnaCommandParser.parse("पेटीएम खोलो")
+        assertTrue(paytm is ParsedCommand.BlockedPaymentApp)
+
+        val bhim = MunnaCommandParser.parse("BHIM UPI kholo")
+        assertTrue(bhim is ParsedCommand.BlockedPaymentApp)
+    }
+
+    @Test
+    fun parse_voiceCallsAndPdfAndAgentModes_recognizesCorrectly() {
+        val callCmd = MunnaCommandParser.parse("Munna, 9876543210 par call karo")
+        assertTrue(callCmd is ParsedCommand.MakePhoneCall)
+        assertEquals("9876543210", (callCmd as ParsedCommand.MakePhoneCall).extractedDigits)
+
+        val pdfCmd = MunnaCommandParser.parse("Munna, PDF padho")
+        assertTrue(pdfCmd is ParsedCommand.OpenPdfReader)
+
+        val discussCmd = MunnaCommandParser.parse("Munna, mujhse discuss karo")
+        assertTrue(discussCmd is ParsedCommand.SwitchAgentMode)
+        assertEquals(MunnaAgentMode.DISCUSSION_PARTNER, (discussCmd as ParsedCommand.SwitchAgentMode).targetMode)
+
+        val studyCmd = MunnaCommandParser.parse("Mere sath padhai karo")
+        assertTrue(studyCmd is ParsedCommand.SwitchAgentMode)
+        assertEquals(MunnaAgentMode.STUDENT_TUTOR, (studyCmd as ParsedCommand.SwitchAgentMode).targetMode)
+    }
+
+    @Test
+    fun extractLearnedMemory_learnsUserNameAndContactNumber() {
+        val nameFact = MunnaCommandParser.extractLearnedMemoryIfAny("Mera naam Rahul hai")
+        assertNotNull(nameFact)
+        assertEquals("user_name", nameFact?.memoryKey)
+
+        val contactFact = MunnaCommandParser.extractLearnedMemoryIfAny("Papa ka number 9876543210 hai")
+        assertNotNull(contactFact)
+        assertEquals("9876543210", contactFact?.contactPhone)
     }
 
     @Test

@@ -6,8 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [CommandHistoryEntity::class, ChatMessageEntity::class],
-    version = 1,
+    entities = [
+        CommandHistoryEntity::class,
+        ChatMessageEntity::class,
+        UserMemoryEntity::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class MunnaDatabase : RoomDatabase() {

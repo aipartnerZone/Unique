@@ -28,4 +28,23 @@ interface MunnaDao {
 
     @Query("DELETE FROM chat_messages")
     suspend fun clearAllChatMessages()
+
+    // Personal Agent Learned Memories & Quick Call Contacts
+    @Query("SELECT * FROM user_memories ORDER BY timestamp DESC")
+    fun getAllUserMemories(): Flow<List<UserMemoryEntity>>
+
+    @Query("SELECT * FROM user_memories ORDER BY timestamp DESC")
+    suspend fun getUserMemoriesSnapshot(): List<UserMemoryEntity>
+
+    @Query("DELETE FROM user_memories WHERE memoryKey = :memoryKey")
+    suspend fun deleteMemoryByKey(memoryKey: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUserMemory(memory: UserMemoryEntity)
+
+    @Query("DELETE FROM user_memories WHERE id = :id")
+    suspend fun deleteUserMemoryById(id: Long)
+
+    @Query("DELETE FROM user_memories")
+    suspend fun clearAllUserMemories()
 }
