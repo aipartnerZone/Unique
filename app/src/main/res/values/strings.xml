@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Munna AI</string>
+    <string name="app_tagline">Bolo, Munna Karega!</string>
+    <string name="greeting_title">नमस्ते भाई! मैं मुन्ना हूँ। बताओ, क्या करना है?</string>
+    <string name="status_idle">बोलने के लिए माइक दबाएँ</string>
+    <string name="status_listening">सुन रहा हूँ…</string>
+    <string name="status_processing">आपकी बात समझ रहा हूँ…</string>
+    <string name="status_completed">काम पूरा हुआ!</string>
+    <string name="nav_home">होम</string>
+    <string name="nav_chat">AI चैट</string>
+    <string name="nav_history">इतिहास</string>
+    <string name="nav_settings">सेटिंग्स</string>
+    <string name="shortcut_youtube">YouTube</string>
+    <string name="shortcut_whatsapp">WhatsApp</string>
+    <string name="shortcut_chrome">Chrome</string>
+    <string name="shortcut_files">Files</string>
+    <string name="recent_commands_title">हाल के कमांड (Recent Commands)</string>
+    <string name="quick_actions_title">जल्दी करने के लिए (App Shortcuts)</string>
+    <string name="notification_service_label">Munna AI Notification Reader</string>
+    <string name="floating_mic_channel_name">Munna Floating Microphone</string>
+    <string name="floating_mic_notification_title">Munna AI फ़्लोटिंग माइक चालू है</string>
+    <string name="floating_mic_notification_text">माइक बटन पर टैप करके कमांड दें या यहाँ से बंद करें।</string>
+    <string name="privacy_no_audio_notice">सुरक्षा वादा: मुन्ना AI आपकी कच्ची ऑडियो रिकॉर्डिंग कभी सेव या अपलोड नहीं करता।</string>
+</resources>

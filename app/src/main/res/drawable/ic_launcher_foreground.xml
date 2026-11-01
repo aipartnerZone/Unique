@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Soft Cyan Glow Aura -->
+    <path
+        android:fillColor="#2622D3EE"
+        android:pathData="M54,18A34,34 0 1,0 88,52A34,34 0 0,0 54,18Z" />
+
+    <!-- Robot Antenna Stem -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M52.5,20h3v8h-3z" />
+
+    <!-- Robot Antenna Glowing Cyan Orb -->
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M54,16A4,4 0 1,0 58,20A4,4 0 0,0 54,16Z" />
+
+    <!-- Left & Right Sky-Blue Headphones -->
+    <path
+        android:fillColor="#0EA5E9"
+        android:pathData="M24,41C21.8,41 20,42.8 20,45v12c0,2.2 1.8,4 4,4h4V41H24z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M22,44h2v14h-2z" />
+
+    <path
+        android:fillColor="#0EA5E9"
+        android:pathData="M80,41v20h4c2.2,0 4,-1.8 4,-4V45c0,-2.2 -1.8,-4 -4,-4H80z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M84,44h2v14h-2z" />
+
+    <!-- Robot Outer White Helmet -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M38,27h32c6.6,0 12,5.4 12,12v21c0,6.6 -5.4,12 -12,12H38c-6.6,0 -12,-5.4 -12,-12V39C26,32.4 31.4,27 38,27z" />
+
+    <!-- Helmet Subtle Sky-Blue Rim Highlight -->
+    <path
+        android:fillColor="#E0F2FE"
+        android:pathData="M38,27h32c6.6,0 12,5.4 12,12v3c0,-6.6 -5.4,-12 -12,-12H38c-6.6,0 -12,5.4 -12,12v-3C26,32.4 31.4,27 38,27z" />
+
+    <!-- Dark Navy Face Visor Screen -->
+    <path
+        android:fillColor="#071124"
+        android:pathData="M39,34h30c4.4,0 8,3.6 8,8v14c0,4.4 -3.6,8 -8,8H39c-4.4,0 -8,-3.6 -8,-8V42C31,37.6 34.6,34 39,34z" />
+
+    <!-- Left Glowing Cyan Happy Eye Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38,48 Q43,41 48,48"
+        android:strokeWidth="3.2"
+        android:strokeColor="#22D3EE"
+        android:strokeLineCap="round" />
+
+    <!-- Right Glowing Cyan Happy Eye Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M60,48 Q65,41 70,48"
+        android:strokeWidth="3.2"
+        android:strokeColor="#22D3EE"
+        android:strokeLineCap="round" />
+
+    <!-- Friendly Robot Smile -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M48,55 Q54,60 60,55"
+        android:strokeWidth="2.5"
+        android:strokeColor="#38BDF8"
+        android:strokeLineCap="round" />
+
+    <!-- Robot Shoulders / Chest Base -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M41,73h26c5,0 9,4 9,9v4H32v-4C32,77 36,73 41,73z" />
+
+    <!-- Sky-Blue 'M' Chest Emblem Circle -->
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M54,73A7.5,7.5 0 1,0 61.5,80.5A7.5,7.5 0 0,0 54,73Z" />
+
+    <!-- White 'M' Letter Inside Chest Badge -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M50.2,83.5 L50.2,77.5 L54,81 L57.8,77.5 L57.8,83.5"
+        android:strokeWidth="1.8"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

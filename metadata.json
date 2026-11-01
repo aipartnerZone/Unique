@@ -1,0 +1,6 @@
+{
+  "name": "Munna AI",
+  "description": "Hindi and Hinglish personal AI voice assistant for Android with voice commands, app launching, floating mic, and Gemini AI chat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
